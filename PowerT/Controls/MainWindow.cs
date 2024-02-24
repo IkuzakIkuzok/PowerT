@@ -143,6 +143,7 @@ internal sealed class MainWindow : Form
             SyncTauT = true,
             Parent = this._params_container.Panel1,
         };
+        this._paramsTable.RowMoved += SetColor;
 
         this.cb_syncAlpha = new()
         {
@@ -598,16 +599,23 @@ internal sealed class MainWindow : Form
         };
         (Program.GradientStart, Program.GradientEnd) = picker.ShowDialog();
 
+        SetColor();
+    } // private void SelectColorGradient (object?, EventArgs)
+
+    private void SetColor(object? sender, EventArgs e)
+        => SetColor();
+
+    private void SetColor()
+    {
         var gradient = new ColorGradient(Program.GradientStart, Program.GradientEnd, this._decays.Count);
-        foreach ((var i, var (name, _)) in this._decays.Enumerate())
+        foreach ((var i, var row) in this._paramsTable.ParamsRows.Enumerate())
         {
-            var row = this._paramsTable[name];
             var color = gradient[i];
             row.Color = color;
             row.ObservedSeries.Color = color;
             row.FittedSeries.Color = color;
         }
-    } // private void SelectColorGradient (object?, EventArgs)
+    } // private void SetColor ()
 
     private void SelectAxisLabelFont(object? sender, EventArgs e)
     {

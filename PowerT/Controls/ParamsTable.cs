@@ -11,6 +11,10 @@ namespace PowerT.Controls;
 internal sealed class ParamsTable : DataGridView
 {
     private bool _syncAlpha, _syncTauT;
+    private Rectangle _mouseDown;
+    private int _mouseFrom, _mouseTo;
+
+    internal event EventHandler? RowMoved;
 
     /// <summary>
     /// Gets a collection of the rows as <see cref="ParamsRow"/>.
@@ -63,6 +67,7 @@ internal sealed class ParamsTable : DataGridView
         this.AllowUserToAddRows = false;
         this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         this.EnableHeadersVisualStyles = false;
+        this.AllowDrop = true;
 
         var col_show = new DataGridViewCheckBoxColumn()
         {
@@ -150,6 +155,63 @@ internal sealed class ParamsTable : DataGridView
         this.Columns.Add(col_copy);  // 7
     } // ctor ()
 
+    #region mouse move
+
+    override protected void OnMouseDown(MouseEventArgs e)
+    {
+        base.OnMouseDown(e);
+
+        this._mouseFrom = HitTest(e.X, e.Y).RowIndex;
+        if (this._mouseFrom > -1)
+        {
+            var dragSize = SystemInformation.DragSize;
+            this._mouseDown = new Rectangle(new Point(e.X - dragSize.Width / 2, e.Y - dragSize.Height / 2), dragSize);
+        }
+        else
+        {
+            this._mouseDown = Rectangle.Empty;
+        }
+    } // override protected void OnMouseDown (MouseEventArgs)
+
+    override protected void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+
+        if (e.Button != MouseButtons.Left) return;
+        if (this._mouseDown.IsEmpty) return;
+        if (this._mouseDown.Contains(e.Location)) return;
+        DoDragDrop(this._mouseFrom, DragDropEffects.Move);
+    } // override protected void OnMouseMove (MouseEventArgs)
+
+    override protected void OnDragOver(DragEventArgs drgevent)
+    {
+        base.OnDragOver(drgevent);
+        drgevent.Effect = DragDropEffects.Move;
+    } // override protected void OnDragOver (DragEventArgs)
+
+    override protected void OnDragDrop(DragEventArgs drgevent)
+    {
+        base.OnDragDrop(drgevent);
+
+        var clientPoint = PointToClient(new(drgevent.X, drgevent.Y));
+        this._mouseTo = HitTest(clientPoint.X, clientPoint.Y).RowIndex;
+        if (drgevent.Effect != DragDropEffects.Move || this._mouseTo < 0) return;
+
+        // swap rows
+        var from = this._mouseFrom;
+        var to = this._mouseTo;
+        var row = this[from];
+        this.Rows.RemoveAt(from);
+        this.Rows.Insert(to, row);
+
+        OnRowMoved(EventArgs.Empty);
+    } // override protected void OnDragDrop (DragEventArgs)
+
+    private void OnRowMoved(EventArgs e)
+        => RowMoved?.Invoke(this, e);
+
+    #endregion mouse move
+
     override protected void OnCellValueChanged(DataGridViewCellEventArgs e)
     {
         if (e.ColumnIndex < 0 || e.RowIndex < 0)
@@ -201,6 +263,8 @@ internal sealed class ParamsTable : DataGridView
         base.OnCellValueChanged(e);
     } // override protected void OnCellValueChanged (DataGridViewCellEventArgs)
 
+    #region cell click
+
     override protected void OnCellContentClick(DataGridViewCellEventArgs e)
     {
         if (e.ColumnIndex < 0 || e.RowIndex < 0)
@@ -245,6 +309,9 @@ internal sealed class ParamsTable : DataGridView
 
         base.OnCellContentDoubleClick(e);
     } // override protected void OnCellContentDoubleClick (DataGridViewCellEventArgs)
+
+    #endregion cell click
+
 
     private void ToggleShow(ParamsRow row)
     {

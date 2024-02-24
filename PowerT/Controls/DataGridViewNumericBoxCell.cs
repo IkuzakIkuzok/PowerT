@@ -12,6 +12,9 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
 
     protected double defaultValue = 0.0;
 
+    internal double DefaultValue
+        => ((DataGridViewNumericBoxCell)this.OwningColumn.CellTemplate).defaultValue;
+
     public DataGridViewNumericBoxCell()
     {
         this.Style.Format = "N2";
@@ -24,7 +27,7 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
 
     override public Type ValueType => typeof(double);
 
-    override public object DefaultNewRowValue => this.defaultValue;
+    override public object DefaultNewRowValue => this.DefaultValue;
 
     override protected object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
     {
@@ -67,15 +70,23 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
             base.OnKeyDown(e, rowIndex);
     } // override protected void OnKeyDown (KeyEventArgs, int)
 
+    protected virtual double GetLogValue()
+    {
+        var val = (double)GetValue(this.RowIndex);
+        if (val <= 0)
+            val = this.DefaultValue;
+        return Math.Log10(val);
+    } // protected virtual double GetLogValue ()
+
     protected virtual double CalcIncrement()
     {
-        var order = Math.Floor(Math.Log10((double)this.Value)) + this.IncrementOrderBias;
+        var order = Math.Floor(GetLogValue()) + this.IncrementOrderBias;
         return Math.Pow(10, order);
     } // protected virtual double CalcIncrement ()
 
     protected virtual double CalcDecrement()
     {
-        var log = Math.Log10((double)this.Value);
+        var log = GetLogValue();
         var order = Math.Floor(log) + this.IncrementOrderBias;
         return log % 1 == 0 ? Math.Pow(10, order - 1) : Math.Pow(10, order);
     } // protected virtual double CalcDecrement ()

@@ -64,5 +64,6 @@ internal class DataGridViewNumericBoxColumn : DataGridViewColumn
     internal DataGridViewNumericBoxColumn(double defaultValue)
     {
         this.CellTemplate = new DataGridViewNumericBoxCell(defaultValue);
+        this.SortMode = DataGridViewColumnSortMode.Automatic;
     } // ctor (double)
 } // internal class DataGridViewNumericBoxColumn : DataGridViewColumn

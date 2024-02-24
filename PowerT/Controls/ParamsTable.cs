@@ -3,13 +3,16 @@
 
 using PowerT.Controls.Text;
 using PowerT.Data;
+using System.Text.RegularExpressions;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls;
 
-[DesignerCategory("Code")]
-internal sealed class ParamsTable : DataGridView
+[DesignerCategory("Code")]                      
+internal sealed partial class ParamsTable : DataGridView
 {
+    private static readonly Regex re_textNum = NamePartsPattern();
+
     private bool _syncAlpha, _syncTauT;
     private Rectangle _mouseDown;
     private int _mouseFrom, _mouseTo;
@@ -155,6 +158,44 @@ internal sealed class ParamsTable : DataGridView
         this.Columns.Add(col_copy);  // 7
     } // ctor ()
 
+    override protected void OnSortCompare(DataGridViewSortCompareEventArgs e)
+    {
+        e.Handled = false;
+
+        if (e.Column.Index == 1) // Name
+        {
+            var name1 = e.CellValue1.ToString();
+            var name2 = e.CellValue2.ToString();
+
+            if (name1 == null || name2 == null) return;
+            
+            var parts1 = re_textNum.Matches(name1).Select(m => m.Value);
+            var parts2 = re_textNum.Matches(name2).Select(m => m.Value);
+            foreach ((var part1, var part2) in parts1.Zip(parts2))
+            {
+                if (part1 == part2) continue;
+                if (double.TryParse(part1, out var num1) && double.TryParse(part2, out var num2))
+                    e.SortResult = num1.CompareTo(num2);
+                else
+                    e.SortResult = string.Compare(part1, part2, StringComparison.InvariantCulture);
+
+                if (e.SortResult != 0)
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+        }
+        else if (e.Column.Index is >= 2 and <= 6) // Params
+        {
+            if (e.CellValue1 is not double d1 || e.CellValue2 is not double d2) return;
+            e.SortResult = d1.CompareTo(d2);
+            e.Handled = true;
+        }
+
+        base.OnSortCompare(e);
+    } // override protected void OnSortCompare (DataGridViewSortCompareEventArgs)
+
     #region mouse move
 
     override protected void OnMouseDown(MouseEventArgs e)
@@ -267,8 +308,7 @@ internal sealed class ParamsTable : DataGridView
 
     override protected void OnCellContentClick(DataGridViewCellEventArgs e)
     {
-        if (e.ColumnIndex < 0 || e.RowIndex < 0)
-            return;
+        if (e.ColumnIndex < 0 || e.RowIndex < 0) return;
 
         var row = this[e.RowIndex];
         if (e.ColumnIndex == 0) // Show
@@ -374,4 +414,7 @@ internal sealed class ParamsTable : DataGridView
 
         return row;
     } // internal ParamsRow Add (string, Decay, Parameters, Series, Series)
-} // internal sealed class ParamsTable : DataGridView
+
+    [GeneratedRegex(@"(\D+|\d+(\.\d+)?)", RegexOptions.Compiled)]
+    private static partial Regex NamePartsPattern();
+} // internal sealed partial class ParamsTable : DataGridView

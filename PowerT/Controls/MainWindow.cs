@@ -4,6 +4,7 @@
 using PowerT.Controls.Text;
 using PowerT.Data;
 using PowerT.Properties;
+using System.Text;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls;
@@ -469,6 +470,14 @@ internal sealed class MainWindow : Form
         };
         m_data.DropDownItems.Add(m_reestimate);
 
+        var m_copy = new ToolStripMenuItem()
+        {
+            Text = "&Copy table",
+            ShortcutKeys = Keys.Control | Keys.C,
+        };
+        m_copy.Click += CopyToClipboard;
+        m_data.DropDownItems.Add(m_copy);
+
         m_data.DropDownItems.Add(new ToolStripSeparator());
 
         this.m_clearBeforeLoad = new()
@@ -687,4 +696,25 @@ internal sealed class MainWindow : Form
             s.Enabled = showFitted;
         }
     } // private void ToggleFitted (object?, EventArgs)
+
+    private void CopyToClipboard(object? sender, EventArgs e)
+    {
+        if (this._decays.Count == 0) return;
+
+        var header = "Name\tA0\tA\tα\tAT\tτt";
+
+        var rows = 
+            this._paramsTable.ParamsRows
+                .Where(row => row.Show)
+                .Select(row => $"{row.Name}\t{row.A0}\t{row.A}\t{row.Alpha}\t{row.AT}\t{row.TauT}");
+        var text = header + Environment.NewLine + string.Join(Environment.NewLine, rows);
+        
+        var data = new DataObject();
+        data.SetData(DataFormats.UnicodeText, text);
+        var bytes = Encoding.UTF8.GetBytes(text);
+        using var stream = new MemoryStream(bytes);
+        data.SetData(DataFormats.CommaSeparatedValue, stream);
+
+        Clipboard.SetDataObject(data, true);
+    } // private void CopyToClipboard (object?, EventArgs)
 } // internal sealed class MainWindow : Form

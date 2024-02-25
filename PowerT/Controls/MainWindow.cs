@@ -143,6 +143,7 @@ internal sealed class MainWindow : Form
             SyncTauT = true,
             Parent = this._params_container.Panel1,
         };
+        this._paramsTable.Sorted += SetColor;
         this._paramsTable.RowMoved += SetColor;
 
         this.cb_syncAlpha = new()

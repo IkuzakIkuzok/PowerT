@@ -4,6 +4,7 @@
 using PowerT.Controls.Text;
 using PowerT.Data;
 using PowerT.Properties;
+using System.Net;
 using System.Text;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -703,17 +704,76 @@ internal sealed class MainWindow : Form
 
         var header = "Name\tA0\tA\tα\tAT\tτt";
 
-        var rows = 
+        var csv_rows = 
             this._paramsTable.ParamsRows
                 .Where(row => row.Show)
                 .Select(row => $"{row.Name}\t{row.A0}\t{row.A}\t{row.Alpha}\t{row.AT}\t{row.TauT}");
-        var text = header + Environment.NewLine + string.Join(Environment.NewLine, rows);
+        var text = header + Environment.NewLine + string.Join(Environment.NewLine, csv_rows);
         
         var data = new DataObject();
         data.SetData(DataFormats.UnicodeText, text);
-        var bytes = Encoding.UTF8.GetBytes(text);
-        using var stream = new MemoryStream(bytes);
-        data.SetData(DataFormats.CommaSeparatedValue, stream);
+
+        var csv_bytes = Encoding.UTF8.GetBytes(text);
+        using var csv_stream = new MemoryStream(csv_bytes);
+        data.SetData(DataFormats.CommaSeparatedValue, csv_stream);
+
+        var table_rows =
+            this._paramsTable.ParamsRows
+                .Where(row => row.Show)
+                .Select((row, i) => $"<tr id=\"row-{i+1}\">" +
+                    $"<td class=\"cell-name\">{WebUtility.HtmlEncode(row.Name)}</td>" +
+                    $"<td class=\"cell-a0\">{row.A0}</td><td class=\"cell-a\">{row.A}</td>" +
+                    $"<td class=\"cell-alpha\">{row.Alpha}</td>" +
+                    $"<td class=\"cell-at\">{row.AT}</td>" +
+                    $"<td class=\"cell-taut\">{row.TauT}</td></tr>"
+                );
+        
+        //lang=html
+        var html = $$"""
+            <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <style>
+                    table { border-collapse:collapse; font-family:Arial; }
+                    tr th, tr td { vertical-align:middle; text-align:right; padding-right:25px; }
+                    #row-header th { border-top:1.0pt solid black; border-bottom:1.0pt solid black; }
+                    #row-{{table_rows.Count()}} td { border-bottom:1.0pt solid black; }
+                </style>
+            </head>
+            <body>
+            <!--StartFragment-->
+            <table>
+            <tr id="row-header">
+                <th class="cell-name">Name</th>
+                <th class="cell-a0"><i>A</i><sub>0</sub> / &Delta;&micro;OD</th>
+                <th class="cell-a">a / &micro;s<sup>&minus;1</sup></th>
+                <th class="cell-alpha"><i>&alpha;</i></th>
+                <th class="cell-at"><i>A</i><sub>T</sub> / &Delta;&micro;OD</th>
+                <th class="cell-taut"><i>&tau;</i><sub>T</sub> / &micro;s</th>
+            </tr>
+            {{string.Join(string.Empty, table_rows)}}
+            </table>
+            <!--EndFragment-->
+            </body>
+            </html>
+            """;
+
+        var startHtml = 97;
+        var endHtml = startHtml + html.Length;
+        var startFragment = startHtml + html.IndexOf("<!--StartFragment-->");
+        var endFragment = startHtml + html.IndexOf("<!--EndFragment-->");
+        var metadata = $"""
+            Version:1.0
+            StartHTML:{startHtml:00000000}
+            EndHTML:{endHtml:00000000}
+            StartFragment:{startFragment:00000000}
+            EndFragment:{endFragment:00000000}
+
+            """;
+
+        var html_bytes = Encoding.UTF8.GetBytes(metadata + html);
+        using var html_stream = new MemoryStream(html_bytes);
+        data.SetData(DataFormats.Html, html_stream);
 
         Clipboard.SetDataObject(data, true);
     } // private void CopyToClipboard (object?, EventArgs)

@@ -55,13 +55,15 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
             if (e.KeyCode == Keys.Up)
             {
                 var value = (double)GetValue(rowIndex);
-                SetValue(rowIndex, value + CalcIncrement() * additionalBias);
+                var increment = CalcIncrement() * additionalBias;
+                SetValue(rowIndex, Math.Floor(value / increment) * increment + increment);
                 e.Handled = true;
             }
             else if (e.KeyCode == Keys.Down)
             {
                 var value = (double)GetValue(rowIndex);
-                SetValue(rowIndex, value - CalcDecrement() * additionalBias);
+                var decrement = CalcDecrement() * additionalBias;
+                SetValue(rowIndex, Math.Ceiling(value / decrement) * decrement - decrement);
                 e.Handled = true;
             }
         }

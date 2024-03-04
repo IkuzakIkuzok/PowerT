@@ -707,7 +707,7 @@ internal sealed class MainWindow : Form
         var csv_rows = 
             this._paramsTable.ParamsRows
                 .Where(row => row.Show)
-                .Select(row => $"{row.Name}\t{row.A0}\t{row.A}\t{row.Alpha}\t{row.AT}\t{row.TauT}");
+                .Select(row => $"{row.Name}\t{row.A0:f2}\t{row.A:f2}\t{row.Alpha:f2}\t{row.AT:f2}\t{row.TauT:f2}");
         var text = header + Environment.NewLine + string.Join(Environment.NewLine, csv_rows);
         
         var data = new DataObject();

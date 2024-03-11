@@ -320,6 +320,7 @@ internal sealed partial class ParamsTable : DataGridView
             var eqn = row.Parameters.ToString();
             if (string.IsNullOrWhiteSpace(eqn)) return;
             Clipboard.SetText(eqn);
+            FadingMessageBox.Show($"Copied to clipboard: \n{eqn}", 0.8, 1000, 75, 0.1);
         }
         else
             base.OnCellContentClick(e);

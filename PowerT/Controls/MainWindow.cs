@@ -21,7 +21,7 @@ internal sealed class MainWindow : Form
     private readonly CheckBox cb_syncAlpha, cb_syncTauT;
     private readonly LogarithmicNumericUpDown nud_timeFrom, nud_timeTo, nud_signalFrom, nud_signalTo;
     private readonly ToolStripMenuItem m_showObserved, m_showFitted;
-    private readonly ToolStripMenuItem m_savePlot, m_clearBeforeLoad;
+    private readonly ToolStripMenuItem m_savePlot, m_copy, m_clearBeforeLoad;
 
     private readonly List<(string, Decay)> _decays = [];
 
@@ -471,13 +471,14 @@ internal sealed class MainWindow : Form
         };
         m_data.DropDownItems.Add(m_reestimate);
 
-        var m_copy = new ToolStripMenuItem()
+        this.m_copy = new ToolStripMenuItem()
         {
             Text = "&Copy table",
             ShortcutKeys = Keys.Control | Keys.C,
+            Enabled = false,
         };
-        m_copy.Click += CopyToClipboard;
-        m_data.DropDownItems.Add(m_copy);
+        this.m_copy.Click += CopyToClipboard;
+        m_data.DropDownItems.Add(this.m_copy);
 
         m_data.DropDownItems.Add(new ToolStripSeparator());
 
@@ -590,7 +591,7 @@ internal sealed class MainWindow : Form
 
         this.axisX.IsLogarithmic = this.axisY.IsLogarithmic = true;
         this.axisX.LabelStyle.Font = this.axisY.LabelStyle.Font = Program.AxisLabelFont;
-        this.m_savePlot.Enabled = true;
+        this.m_savePlot.Enabled = this.m_copy.Enabled = true;
     } // private void LoadSources ()
 
     private void OpenSources(object? sender, EventArgs e)
@@ -776,5 +777,6 @@ internal sealed class MainWindow : Form
         data.SetData(DataFormats.Html, html_stream);
 
         Clipboard.SetDataObject(data, true);
+        FadingMessageBox.Show("Copied the table to clipboard", 0.8, 2000, 75, 0.05, this);
     } // private void CopyToClipboard (object?, EventArgs)
 } // internal sealed class MainWindow : Form

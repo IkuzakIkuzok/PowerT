@@ -601,6 +601,11 @@ internal sealed class MainWindow : Form
         this.axisX.IsLogarithmic = this.axisY.IsLogarithmic = true;
         this.axisX.LabelStyle.Font = this.axisY.LabelStyle.Font = Program.AxisLabelFont;
         this.m_savePlot.Enabled = this.m_copy.Enabled = this.m_paste.Enabled = true;
+        foreach (var row in this._paramsTable.ParamsRows)
+        {
+            row.ObservedSeries.Enabled = this.m_showObserved.Checked;
+            row.FittedSeries.Enabled = this.m_showFitted.Checked;
+        }
     } // private void LoadSources ()
 
     private void OpenSources(object? sender, EventArgs e)

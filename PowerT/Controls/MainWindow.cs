@@ -21,7 +21,7 @@ internal sealed class MainWindow : Form
     private readonly CheckBox cb_syncAlpha, cb_syncTauT;
     private readonly LogarithmicNumericUpDown nud_timeFrom, nud_timeTo, nud_signalFrom, nud_signalTo;
     private readonly ToolStripMenuItem m_showObserved, m_showFitted;
-    private readonly ToolStripMenuItem m_savePlot, m_copy, m_clearBeforeLoad;
+    private readonly ToolStripMenuItem m_savePlot, m_copy, m_paste, m_clearBeforeLoad;
 
     private readonly List<(string, Decay)> _decays = [];
 
@@ -480,6 +480,15 @@ internal sealed class MainWindow : Form
         this.m_copy.Click += CopyToClipboard;
         m_data.DropDownItems.Add(this.m_copy);
 
+        this.m_paste = new ToolStripMenuItem()
+        {
+            Text = "&Paste table",
+            ShortcutKeys = Keys.Control | Keys.V,
+            Enabled = false,
+        };
+        this.m_paste.Click += PasteFromClipboard;
+        m_data.DropDownItems.Add(this.m_paste);
+
         m_data.DropDownItems.Add(new ToolStripSeparator());
 
         this.m_clearBeforeLoad = new()
@@ -591,7 +600,7 @@ internal sealed class MainWindow : Form
 
         this.axisX.IsLogarithmic = this.axisY.IsLogarithmic = true;
         this.axisX.LabelStyle.Font = this.axisY.LabelStyle.Font = Program.AxisLabelFont;
-        this.m_savePlot.Enabled = this.m_copy.Enabled = true;
+        this.m_savePlot.Enabled = this.m_copy.Enabled = this.m_paste.Enabled = true;
     } // private void LoadSources ()
 
     private void OpenSources(object? sender, EventArgs e)
@@ -779,4 +788,33 @@ internal sealed class MainWindow : Form
         Clipboard.SetDataObject(data, true);
         FadingMessageBox.Show("Copied the table to clipboard", 0.8, 2000, 75, 0.05, this);
     } // private void CopyToClipboard (object?, EventArgs)
+
+    private void PasteFromClipboard(object? sender, EventArgs e)
+    {
+        if (this._decays.Count == 0) return;
+        if (!Clipboard.ContainsData(DataFormats.CommaSeparatedValue)) return;
+
+        if (Clipboard.GetData(DataFormats.CommaSeparatedValue) is not MemoryStream stream) return;
+
+
+        var bytes = stream.ToArray();
+        var text = Encoding.UTF8.GetString(bytes);
+        var rows = text.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Skip(1);
+        this.cb_syncAlpha.Checked = this.cb_syncTauT.Checked = false;
+        foreach (var row in rows)
+        {
+            var values = row.Split(',');
+            var name = values[0];
+            try
+            {
+                var tr = this._paramsTable[name];
+                tr.A0 = double.Parse(values[1]);
+                tr.A = double.Parse(values[2]);
+                tr.Alpha = double.Parse(values[3]);
+                tr.AT = double.Parse(values[4]);
+                tr.TauT = double.Parse(values[5]);
+            }
+            catch { /* row not found */ }
+        }
+    } // private void PasteFromClipboard (object?, EventArgs)
 } // internal sealed class MainWindow : Form

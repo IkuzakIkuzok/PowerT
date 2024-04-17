@@ -6,13 +6,17 @@ using PowerT.Data;
 using PowerT.Properties;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls;
 
 [DesignerCategory("Code")]
-internal sealed class MainWindow : Form
+internal sealed partial class MainWindow : Form
 {
+    [GeneratedRegex(@"(?<mantissa>.*)(E(?<exponent>.*))")]
+    private static partial Regex re_expFormat();
+
     private readonly TextBox tb_sources;
     private readonly SplitContainer _container, _params_container;
     private readonly Chart _chart;
@@ -193,11 +197,12 @@ internal sealed class MainWindow : Form
         this.nud_timeFrom = new()
         {
             Location = new(110, 58),
-            Size = new(60, 20),
+            Size = new(80, 20),
             DecimalPlaces = 2,
             Minimum = 0.01M,
             Maximum = 10M,
             Value = (decimal)this.axisX.Minimum,
+            Formatter = ExpFormatter,
             Parent = this._params_container.Panel2,
         };
         this.nud_timeFrom.ValueChanged += (sender, e) => this.axisX.Minimum = (double)this.nud_timeFrom.Value;
@@ -205,19 +210,20 @@ internal sealed class MainWindow : Form
         _ = new Label()
         {
             Text = "To",
-            Location = new(180, 60),
+            Location = new(200, 60),
             Size = new(20, 20),
             Parent = this._params_container.Panel2,
         };
 
         this.nud_timeTo = new()
         {
-            Location = new(200, 58),
-            Size = new(70, 20),
+            Location = new(220, 58),
+            Size = new(80, 20),
             DecimalPlaces = 0,
             Minimum = 50M,
             Maximum = 100_000M,
             Value = (decimal)this.axisX.Maximum,
+            Formatter = ExpFormatter,
             Parent = this._params_container.Panel2,
         };
         this.nud_timeTo.ValueChanged += (sender, e) => this.axisX.Maximum = (double)this.nud_timeTo.Value;
@@ -241,11 +247,12 @@ internal sealed class MainWindow : Form
         this.nud_signalFrom = new()
         {
             Location = new(110, 88),
-            Size = new(60, 20),
+            Size = new(80, 20),
             DecimalPlaces = 0,
             Minimum = 1M,
             Maximum = 100M,
             Value = (decimal)this.axisY.Minimum,
+            Formatter = ExpFormatter,
             Parent = this._params_container.Panel2,
         };
         this.nud_signalFrom.ValueChanged += (sender, e) => this.axisY.Minimum = (double)this.nud_signalFrom.Value;
@@ -253,19 +260,20 @@ internal sealed class MainWindow : Form
         _ = new Label()
         {
             Text = "To",
-            Location = new(180, 90),
+            Location = new(200, 90),
             Size = new(20, 20),
             Parent = this._params_container.Panel2,
         };
 
         this.nud_signalTo = new()
         {
-            Location = new(200, 88),
-            Size = new(70, 20),
+            Location = new(220, 88),
+            Size = new(80, 20),
             DecimalPlaces = 0,
             Minimum = 500M,
             Maximum = 1_000_000M,
             Value = (decimal)this.axisY.Maximum,
+            Formatter = ExpFormatter,
             Parent = this._params_container.Panel2,
         };
         this.nud_signalTo.ValueChanged += (sender, e) => this.axisY.Maximum = (double)this.nud_signalTo.Value;
@@ -512,6 +520,48 @@ internal sealed class MainWindow : Form
             this._container.Height = this.Height - 130;
         };
     } // ctor ()
+
+    private static string ExpFormatter(decimal value)
+    {
+        var s = value.ToString("E2");
+
+        var match = re_expFormat().Match(s);
+        if (!match.Success) return s;
+
+        var mantissa = match.Groups["mantissa"].Value;
+        var exponent = match.Groups["exponent"].Value;
+
+        var sb = new StringBuilder(mantissa);
+        sb.Append("×10");
+        if (exponent.StartsWith('-'))
+            sb.Append('⁻');  // U+207B
+
+        var e = exponent[1..].TrimStart('0');
+        if (e.Length == 0)
+        {
+            sb.Append('⁰');  // U+2070
+        }
+        else
+        {
+            // append unicode superscript
+            foreach (var c in exponent[1..].TrimStart('0'))
+            {
+                /*
+                 * Superscript of 1, 2, 3 are located in U+00Bx,
+                 * whereas the rest in U+207x.
+                 */
+                sb.Append(c switch
+                {
+                    '1' => '¹',  // U+00B9
+                    '2' => '²',  // U+00B2
+                    '3' => '³',  // U+00B3
+                    _ => (char)(c + 0x2040)  // U+2070 - U+2079
+                });
+            }
+        }
+
+        return sb.ToString();
+    } // private static string ExpFormatter (decimal)
 
     private void SourcesDragEnter(object? sender, DragEventArgs e)
     {
@@ -822,4 +872,4 @@ internal sealed class MainWindow : Form
             catch { /* row not found */ }
         }
     } // private void PasteFromClipboard (object?, EventArgs)
-} // internal sealed class MainWindow : Form
+} // internal sealed partial class MainWindow : Form

@@ -9,6 +9,18 @@ namespace PowerT.Controls;
 [DesignerCategory("Code")]
 internal class LogarithmicNumericUpDown : NumericUpDown
 {
+    protected Func<decimal, string>? _formatter;
+
+    internal Func<decimal, string>? Formatter
+    {
+        get => this._formatter;
+        set
+        {
+            this._formatter = value;
+            UpdateEditText();
+        }
+    }
+
     protected decimal Decrement => CalcDecrement();
 
     override public void UpButton()
@@ -47,4 +59,12 @@ internal class LogarithmicNumericUpDown : NumericUpDown
         var log = Math.Log10((double)this.Value);
         return log % 1 == 0 ? this.Increment / 10 : this.Increment;
     } // protected virtual double CalcDecrement ()
+
+    override protected void UpdateEditText()
+    {
+        if (this.Formatter != null)
+            this.Text = this.Formatter(this.Value);
+        else
+            base.UpdateEditText();
+    } // override protected void UpdateEditText ()
 } // internal class LogarithmicNumericUpDown : NumericUpDown

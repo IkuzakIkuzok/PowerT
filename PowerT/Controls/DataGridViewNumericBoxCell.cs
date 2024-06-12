@@ -10,6 +10,8 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
     internal double Maximum { get; set; } = double.MaxValue;
     internal double Minimum { get; set; } = double.MinValue;
 
+    internal int Digit { get; set; } = 6;
+
     protected double defaultValue = 0.0;
 
     internal double DefaultValue
@@ -46,6 +48,9 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
         return base.SetValue(rowIndex, value);
     } // override protected bool SetValue (int, object)
 
+    protected double GetDoubleValue(int rowIndex)
+        => Math.Round((double)GetValue(rowIndex), this.Digit);
+
     override protected void OnKeyDown(KeyEventArgs e, int rowIndex)
     {
         if (e.Alt && this.DataGridView is not null)
@@ -54,16 +59,17 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
 
             if (e.KeyCode == Keys.Up)
             {
-                var value = (double)GetValue(rowIndex);
+                var value = GetDoubleValue(rowIndex);
                 var increment = CalcIncrement() * additionalBias;
-                SetValue(rowIndex, Math.Floor(value / increment) * increment + increment);
+                SetValue(rowIndex, Math.Floor(Math.Round(value / increment, this.Digit)) * increment + increment);
                 e.Handled = true;
             }
             else if (e.KeyCode == Keys.Down)
             {
-                var value = (double)GetValue(rowIndex);
+                var value = GetDoubleValue(rowIndex);
                 var decrement = CalcDecrement() * additionalBias;
-                SetValue(rowIndex, Math.Ceiling(value / decrement) * decrement - decrement);
+                var newValue = Math.Ceiling(Math.Round(value / decrement, this.Digit)) * decrement - decrement;
+                SetValue(rowIndex, newValue);
                 e.Handled = true;
             }
         }

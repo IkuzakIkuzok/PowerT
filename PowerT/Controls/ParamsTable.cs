@@ -68,6 +68,7 @@ internal sealed partial class ParamsTable : DataGridView
     internal ParamsTable()
     {
         this.AllowUserToAddRows = false;
+        this.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
         this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         this.EnableHeadersVisualStyles = false;
         this.AllowDrop = true;

@@ -11,6 +11,10 @@ namespace PowerT;
 /// </summary>
 internal static class Program
 {
+    internal static event EventHandler? AxisLabelFontChanged;
+
+    internal static event EventHandler? AxisTitleFontChanged;
+
     /// <summary>
     /// Gets the application configuration.
     /// </summary>
@@ -65,6 +69,7 @@ internal static class Program
         {
             Config.AppearanceConfig.AxisLabelFont.Font = value;
             Config.Save();
+            AxisLabelFontChanged?.Invoke(null, EventArgs.Empty);
         }
     }
 
@@ -78,6 +83,7 @@ internal static class Program
         {
             Config.AppearanceConfig.AxisTitleFont.Font = value;
             Config.Save();
+            AxisTitleFontChanged?.Invoke(null, EventArgs.Empty);
         }
     }
 

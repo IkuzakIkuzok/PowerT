@@ -1,6 +1,7 @@
 ﻿
 // (c) 2024 Kazuki Kohzuki
 
+using PowerT.Controls.Concatenator;
 using PowerT.Controls.Text;
 using PowerT.Data;
 using PowerT.Properties;
@@ -128,6 +129,18 @@ internal sealed partial class MainWindow : Form
             AxisY = this.axisY,
         });
 
+        var dummy = new Series()
+        {
+            ChartType = SeriesChartType.Point,
+            IsVisibleInLegend = false,
+            IsXValueIndexed = false,
+        };
+        dummy.Points.AddXY(1e-6, 1e-6);
+        this._chart.Series.Add(dummy);
+
+        this.axisX.IsLogarithmic = this.axisY.IsLogarithmic = true;
+        this.axisX.LabelStyle.Font = this.axisY.LabelStyle.Font = Program.AxisLabelFont;
+
         #endregion chart
 
         this._params_container = new()
@@ -176,7 +189,7 @@ internal sealed partial class MainWindow : Form
 
         _ = new Label()
         {
-            Text = "Time (us): From",
+            Text = "Time (us):",
             Location = new(10, 60),
             Size = new(60, 20),
             Parent = this._params_container.Panel2,
@@ -505,6 +518,23 @@ internal sealed partial class MainWindow : Form
 
         #endregion menu.data
 
+        #region menu.tools
+
+        var m_tools = new ToolStripMenuItem()
+        {
+            Text = "&Tools",
+        };
+        ms.Items.Add(m_tools);
+
+        var m_concatenate = new ToolStripMenuItem()
+        {
+            Text = "&Concatenate decays",
+        };
+        m_concatenate.Click += (sender, e) => new ConcatenateForm().Show();
+        m_tools.DropDownItems.Add(m_concatenate);
+
+        #endregion menu.tools
+
         #endregion menu
 
         SizeChanged += (sender, e) =>
@@ -592,6 +622,7 @@ internal sealed partial class MainWindow : Form
                 }
                 this._chart.Series.Add(observed);
                 this._chart.Series.Add(fitted);
+
                 var row = this._paramsTable.Add(name, decay, parameters, observed, fitted);
                 row.Color = color;
             }
@@ -602,8 +633,6 @@ internal sealed partial class MainWindow : Form
             return;
         }
 
-        this.axisX.IsLogarithmic = this.axisY.IsLogarithmic = true;
-        this.axisX.LabelStyle.Font = this.axisY.LabelStyle.Font = Program.AxisLabelFont;
         this.m_savePlot.Enabled = this.m_copy.Enabled = this.m_paste.Enabled = true;
         foreach (var row in this._paramsTable.ParamsRows)
         {

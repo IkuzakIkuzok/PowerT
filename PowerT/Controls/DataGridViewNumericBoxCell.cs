@@ -61,6 +61,7 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
             {
                 var value = GetDoubleValue(rowIndex);
                 var increment = CalcIncrement() * additionalBias;
+                if (increment == 0) increment = 1;
                 SetValue(rowIndex, Math.Floor(Math.Round(value / increment, this.Digit)) * increment + increment);
                 e.Handled = true;
             }
@@ -68,6 +69,7 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
             {
                 var value = GetDoubleValue(rowIndex);
                 var decrement = CalcDecrement() * additionalBias;
+                if (decrement == 0) decrement = 1;
                 var newValue = Math.Ceiling(Math.Round(value / decrement, this.Digit)) * decrement - decrement;
                 SetValue(rowIndex, newValue);
                 e.Handled = true;

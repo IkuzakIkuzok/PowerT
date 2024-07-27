@@ -8,11 +8,51 @@ namespace PowerT.Data;
 /// <summary>
 /// Represents a decay data.
 /// </summary>
-internal sealed class Decay : IEnumerable<(double, double)>
+internal sealed class Decay : IEnumerable<(double Time, double Signal)>
 {
     private readonly double[] times, signals;
 
+    /// <summary>
+    /// An empty decay data.
+    /// </summary>
+    internal static readonly Decay Empty = new([], []);
+
+    /// <summary>
+    /// Gets the times.
+    /// </summary>
     internal IEnumerable<double> Times => this.times;
+
+    /// <summary>
+    /// Gets the signals.
+    /// </summary>
+    internal IEnumerable<double> Signals => this.signals;
+
+    /// <summary>
+    /// Gets the minimum time.
+    /// </summary>
+    internal double TimeMin => this.times.Min();
+
+    /// <summary>
+    /// Gets the maximum time.
+    /// </summary>
+    internal double TimeMax => this.times.Max();
+
+    /// <summary>
+    /// Gets the time step.
+    /// </summary>
+    internal double TimeStep => this.times[1] - this.times[0];
+
+    /// <summary>
+    /// Gets the minimum signal.
+    /// </summary>
+    internal double SignalMin => this.signals.Min();
+
+    /// <summary>
+    /// Gets the maximum signal.
+    /// </summary>
+    internal double SignalMax => this.signals.Max();
+
+    internal Decay Absolute => new(this.times, this.signals.Select(Math.Abs).ToArray());
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Decay"/> class.
@@ -33,8 +73,10 @@ internal sealed class Decay : IEnumerable<(double, double)>
     /// Reads a decay data from a file.
     /// </summary>
     /// <param name="filename">The filename.</param>
+    /// <param name="timeScaling">The time scaling.</param>
+    /// <param name="signalScaling">The signal scaling.</param>
     /// <returns>The decay data.</returns>
-    internal static Decay FromFile(string filename)
+    internal static Decay FromFile(string filename, double timeScaling = 1.0, double signalScaling = 1.0)
     {
         try
         {
@@ -44,8 +86,8 @@ internal sealed class Decay : IEnumerable<(double, double)>
             for (var i = 0; i < lines.Length; i++)
             {
                 var parts = lines[i].Split(',');
-                times[i] = double.Parse(parts[0]);
-                signals[i] = double.Parse(parts[1]);
+                times[i] = double.Parse(parts[0]) * timeScaling;
+                signals[i] = double.Parse(parts[1]) * signalScaling;
             }
             return new(times, signals);
         }
@@ -53,15 +95,24 @@ internal sealed class Decay : IEnumerable<(double, double)>
         {
             throw new IOException($"Failed to read the file:\n{filename}", ex);
         }
-    } // internal static Decay FromFile (string)
+    } // internal static Decay FromFile (string, [int], [int])
 
-    public IEnumerator<(double, double)> GetEnumerator()
+    public IEnumerator<(double Time, double Signal)> GetEnumerator()
     {
         for (var i = 0; i < this.times.Length; i++)
-            yield return (this.times[i], this.signals[i]);
-    } // public IEnumerator<(double, double)> GetEnumerator()
+            yield return (Time: this.times[i], Signal: this.signals[i]);
+    } // public IEnumerator<(double Time, double Signal)> GetEnumerator()
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    internal Decay OfRange(double start, double end)
+    {
+        var startIndex = Array.BinarySearch(this.times, start);
+        if (startIndex < 0) startIndex = ~startIndex;  // If not found, Array.BinarySearch returns the bitwise complement of the index of the next element.
+        var endIndex = Array.BinarySearch(this.times, end);
+        if (endIndex < 0) endIndex = ~endIndex;
+        return new(this.times[startIndex..endIndex], this.signals[startIndex..endIndex]);
+    } // internal Decay OfRange (double, double)
 
     /// <summary>
     /// Estimates the parameters.
@@ -99,4 +150,4 @@ internal sealed class Decay : IEnumerable<(double, double)>
         var intercept = (Sxx * Sy - Sx * Sxy) / denom;
         return (slope, intercept);
     } // private static (double, double) LinearRegression (IEnumerable<double>, IEnumerable<double>)
-} // internal sealed class Decay : IEnumerable<(double, double)>
+} // internal sealed class Decay : IEnumerable<(double Time, double Signal)>

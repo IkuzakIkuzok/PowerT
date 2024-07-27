@@ -61,19 +61,19 @@ internal sealed class DecayDataTable : DataGridView
         };
         this.Columns.Add(col_timeEnd);  // 2
 
-        var col_employStart = new DataGridViewNumericBoxColumn()
+        var col_useFrom = new DataGridViewNumericBoxColumn()
         {
-            HeaderText = "Employ start (us)",
+            HeaderText = "Use from (us)",
             AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
         };
-        this.Columns.Add(col_employStart);  // 3
+        this.Columns.Add(col_useFrom);  // 3
 
-        var col_employEnd = new DataGridViewNumericBoxColumn()
+        var col_useTo = new DataGridViewNumericBoxColumn()
         {
-            HeaderText = "Employ end (us)",
+            HeaderText = "Use to (us)",
             AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
         };
-        this.Columns.Add(col_employEnd);  // 4
+        this.Columns.Add(col_useTo);  // 4
 
         var col_scaling = new DataGridViewNumericBoxColumn(1.0)
         {
@@ -113,48 +113,48 @@ internal sealed class DecayDataTable : DataGridView
 
         var row = (DecayDataRow)this.Rows[e.RowIndex];
         var decay = row.Decay;
-        var employStart = row.EmployStart;
-        var employEnd = row.EmployEnd;
+        var useFrom = row.UseFrom;
+        var useTo = row.UseTo;
 
-        if (e.ColumnIndex == 3)  // employ start
+        if (e.ColumnIndex == 3)  // use from
         {
-            if (employStart < 0)
+            if (useFrom < 0)
             {
-                row.EmployStart = 0;
+                row.UseFrom = 0;
                 return;
             }
-            if (employStart > employEnd - decay.TimeStep * 2)
+            if (useFrom > useTo - decay.TimeStep * 2)
             {
                 // At least one point must be included in any range with a width of 2 * TimeStep.
-                row.EmployStart = employEnd - decay.TimeStep * 2;
+                row.UseFrom = useTo - decay.TimeStep * 2;
                 return;
             }
             
             var faster =
                 GetFaster(decay).Where(row => row.Index != e.RowIndex)
-                                .Where(row => row.EmployEnd > employStart);
+                                .Where(row => row.UseTo > useFrom);
             foreach (var r in faster)
-                r.EmployEnd = employStart;
+                r.UseTo = useFrom;
         }
-        else if (e.ColumnIndex == 4)  // employ end
+        else if (e.ColumnIndex == 4)  // use to
         {
-            if (employEnd > decay.TimeMax)
+            if (useTo > decay.TimeMax)
             {
-                row.EmployEnd = decay.TimeMax;
+                row.UseTo = decay.TimeMax;
                 return;
             }
-            if (employEnd < employStart + decay.TimeStep * 2)
+            if (useTo < useFrom + decay.TimeStep * 2)
             {
                 // At least one point must be included in any range with a width of 2 * TimeStep.
-                row.EmployEnd = employStart + decay.TimeStep * 2;
+                row.UseTo = useFrom + decay.TimeStep * 2;
                 return;
             }
             
             var slower =
                 GetSlower(decay).Where(row => row.Index != e.RowIndex)
-                                .Where(row => row.EmployStart < employEnd);
+                                .Where(row => row.UseFrom < useTo);
             foreach (var r in slower)
-                r.EmployStart = employEnd;
+                r.UseFrom = useTo;
         }
 
         if (e.ColumnIndex is >= 3 and <= 5)
@@ -163,7 +163,7 @@ internal sealed class DecayDataTable : DataGridView
             var scaling = row.Scaling;
 
             series.Points.Clear();
-            foreach (var (time, signal) in row.EmployedDecay)
+            foreach (var (time, signal) in row.Used)
                 series.Points.AddXY(time, signal * scaling);
         }
 
@@ -184,16 +184,16 @@ internal sealed class DecayDataTable : DataGridView
         };
         var index = this.Rows.Add(row);
 
-        var employStart =
+        var useFrom =
             GetFaster(decay).Where(row => row.Index != index)
-                                    .Select(row => row.EmployEnd)
+                                    .Select(row => row.UseTo)
                                     .Append(0.0)
                                     .Max();
-        var employEnd = decay.Times.TakeLast(50).First();
+        var useTo = decay.Times.TakeLast(50).First();
 
         // At least one point must be included in any range with a width of 2 * TimeStep.
-        if (employStart > employEnd - decay.TimeStep * 2)
-            employStart = employEnd - decay.TimeStep * 2;
+        if (useFrom > useTo - decay.TimeStep * 2)
+            useFrom = useTo - decay.TimeStep * 2;
 
         row = (DecayDataRow)this.Rows[index];
         row.Cells[0].Value = name;
@@ -201,19 +201,19 @@ internal sealed class DecayDataTable : DataGridView
         row.Cells[2].Value = decay.TimeMax;
 
         /*
-         * employ end must be set before employ start;
+         * useTo must be set before useFrom;
          * otherwise, bound adjusting runs recursively and stack overflow occurs
          * See OnCellValueChanged e.ColumnIndex == 3 or 4
          */
-        row.Cells[4].Value = employEnd;
-        row.Cells[3].Value = employStart;
+        row.Cells[4].Value = useTo;
+        row.Cells[3].Value = useFrom;
         row.Cells[5].Value = 1.0;
 
         /*
-         * Setting employ start and end triggers OnCellValueChanged
+         * Setting useFrom and useTo triggers OnCellValueChanged
          * and the series points are already set in the event handler.
          */
-        // foreach (var (time, signal) in decay.OfRange(employStart, employEnd))
+        // foreach (var (time, signal) in decay.OfRange(useFrom, useTo))
         //     series.Points.AddXY(time, signal);
 
         RefreshEdit();

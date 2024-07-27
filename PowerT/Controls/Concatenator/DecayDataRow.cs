@@ -27,9 +27,9 @@ internal sealed class DecayDataRow : DataGridViewRow
     internal Decay Decay { get; }
 
     /// <summary>
-    /// Gets the employed decay.
+    /// Gets the used decay.
     /// </summary>
-    internal Decay EmployedDecay => this.Decay.OfRange(this.EmployStart, this.EmployEnd);
+    internal Decay Used => this.Decay.OfRange(this.UseFrom, this.UseTo);
 
     /// <summary>
     /// Gets the series.
@@ -50,18 +50,18 @@ internal sealed class DecayDataRow : DataGridViewRow
         => this.Cells[index].Value is double value ? value : defaultValue;
 
     /// <summary>
-    /// Gets or sets the employed start time.
+    /// Gets or sets the time from which the decay is used.
     /// </summary>
-    internal double EmployStart
+    internal double UseFrom
     {
         get => GetCellValue(3, 0);
         set => this.Cells[3].Value = value;
     }
 
     /// <summary>
-    /// Gets or sets the employed end time.
+    /// Gets or sets the time to which the decay is used.
     /// </summary>
-    internal double EmployEnd
+    internal double UseTo
     {
         get => GetCellValue(4, 0);
         set => this.Cells[4].Value = value;

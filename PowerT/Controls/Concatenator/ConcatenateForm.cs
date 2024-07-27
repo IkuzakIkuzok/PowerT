@@ -337,7 +337,7 @@ internal sealed class ConcatenateForm : Form
             foreach (var row in this._decaysTable.DecayDataRows)
             {
                 var scaling = row.Scaling;
-                foreach ((var time, var signal) in row.EmployedDecay)
+                foreach ((var time, var signal) in row.Used)
                     sw.WriteLine($"{time},{signal * scaling}");
             }
             

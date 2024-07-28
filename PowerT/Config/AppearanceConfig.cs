@@ -35,5 +35,7 @@ public sealed class AppearanceConfig
     [XmlElement("axis-title")]
     public FontConfig AxisTitleFont { get; set; } = new();
 
+    public SerializableColor GuideLineColor { get; set; } = new() { Color = Color.Black };
+
     public AppearanceConfig() { }
 } // public sealed class AppearanceConfig

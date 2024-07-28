@@ -88,6 +88,19 @@ internal static class Program
     }
 
     /// <summary>
+    /// Gets or sets the color of a guide line.
+    /// </summary>
+    internal static Color GuideLineColor
+    {
+        get => Config.AppearanceConfig.GuideLineColor.Color;
+        set
+        {
+            Config.AppearanceConfig.GuideLineColor.Color = value;
+            Config.Save();
+        }
+    }
+
+    /// <summary>
     ///  The main entry point for the application.
     /// </summary>
     [STAThread]

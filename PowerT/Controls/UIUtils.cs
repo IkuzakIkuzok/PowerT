@@ -51,4 +51,13 @@ internal static partial class UIUtils
 
         return sb.ToString();
     } // internal static string ExpFormatter (decimal)
+
+    internal static Color CalcInvertColor(Color color)
+    {
+        var r = color.R;
+        var g = color.G;
+        var b = color.B;
+        var m = 255;
+        return Color.FromArgb(color.A, m - r, m - g, m - b);
+    } // internal static Color CalcInvertColor (Color)
 } // internal static partial class UIUtils

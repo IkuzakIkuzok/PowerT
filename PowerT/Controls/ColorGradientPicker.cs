@@ -129,12 +129,6 @@ internal class ColorGradientPicker : Form
     } // protected virtual void SetColor ()
 
     protected virtual Color CalcInvertColor(Color color)
-    {
-        var r = color.R;
-        var g = color.G;
-        var b = color.B;
-        var m = 255;
-        return Color.FromArgb(color.A, m - r, m - g, m - b);
-    } // protected virtual Color CalcInvertColor (Color)
+        => UIUtils.CalcInvertColor(color);
 } // internal class ColorGradientPicker
 

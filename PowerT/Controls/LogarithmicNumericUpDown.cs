@@ -11,6 +11,8 @@ internal class LogarithmicNumericUpDown : NumericUpDown
 {
     protected Func<decimal, string>? _formatter;
 
+    internal int IncrementOrderBias { get; set; } = 0;
+
     internal Func<decimal, string>? Formatter
     {
         get => this._formatter;
@@ -50,7 +52,7 @@ internal class LogarithmicNumericUpDown : NumericUpDown
     protected virtual decimal CalcIncrement(double value)
     {
         var log = Math.Log10(value);
-        var order = Math.Floor(log);
+        var order = Math.Floor(log) + this.IncrementOrderBias;
         return (decimal)Math.Pow(10, order);
     } // protected virtual double CalcIncrement (double)
 

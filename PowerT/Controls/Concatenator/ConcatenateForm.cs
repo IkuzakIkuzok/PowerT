@@ -16,6 +16,12 @@ internal sealed class ConcatenateForm : Form
     private readonly LogarithmicNumericUpDown nud_timeFrom, nud_timeTo, nud_signalFrom, nud_signalTo;
     private readonly Button btn_save;
 
+    private readonly CheckBox cb_showGuide;
+    private readonly LogarithmicNumericUpDown nud_guideIntercept;
+    private readonly CustomNumericUpDown nud_guideSlope;
+    private readonly Button btn_guideColor;
+    private readonly Series series_guide;
+
     internal ConcatenateForm()
     {
         this.Text = "Concatenate decays";
@@ -205,7 +211,7 @@ internal sealed class ConcatenateForm : Form
         {
             Location = new(110, 58),
             Size = new(60, 20),
-            DecimalPlaces = 0,
+            DecimalPlaces = 2,
             Minimum = 0.001M,
             Maximum = 1_000M,
             Value = (decimal)this.axisY.Minimum,
@@ -234,6 +240,82 @@ internal sealed class ConcatenateForm : Form
         this.nud_signalTo.ValueChanged += (sender, e) => this.axisY.Maximum = (double)this.nud_signalTo.Value;
 
         #endregion display range
+
+        #region guide
+
+        this.cb_showGuide = new()
+        {
+            Text = "Show guide line",
+            Checked = true,
+            Location = new(350, 90),
+            Size = new(100, 20),
+            Parent = this._decays_container.Panel2,
+        };
+        this.cb_showGuide.CheckedChanged += ToggleGuide;
+
+        _ = new Label()
+        {
+            Text = "Intercept",
+            Location = new(350, 30),
+            Size = new(60, 20),
+            Parent = this._decays_container.Panel2,
+        };
+
+        this.nud_guideIntercept = new()
+        {
+            Location = new(410, 28),
+            Size = new(90, 20),
+            Formatter = UIUtils.ExpFormatter,
+            Minimum = 0.0001M,
+            Maximum = 1_000_000M,
+            Value = 100M,
+            IncrementOrderBias = -1,
+            Parent = this._decays_container.Panel2,
+        };
+        this.nud_guideIntercept.ValueChanged += UpdateGuide;
+
+        _ = new Label()
+        {
+            Text = "Slope",
+            Location = new(350, 60),
+            Size = new(40, 20),
+            Parent = this._decays_container.Panel2,
+        };
+
+        this.nud_guideSlope = new()
+        {
+            Location = new(410, 58),
+            Size = new(90, 20),
+            DecimalPlaces = 2,
+            Minimum = 0.01M,
+            Maximum = 1.00M,
+            Value = 0.4M,
+            Increment = 0.01M,
+            ScrollIncrement = 0.01M,
+            Parent = this._decays_container.Panel2,
+        };
+        this.nud_guideSlope.ValueChanged += UpdateGuide;
+
+        this.btn_guideColor = new()
+        {
+            Location = new(460, 88),
+            Size = new(80, 25),
+            Parent = this._decays_container.Panel2,
+        };
+        this.btn_guideColor.Click += ChangeGuideColor;
+
+        this.series_guide = new()
+        {
+            ChartType = SeriesChartType.Line,
+            BorderDashStyle = ChartDashStyle.Dash,
+            BorderWidth = 2,
+            IsVisibleInLegend = false,
+        };
+        SetGuideColor();
+        UpdateGuide();
+        this._chart.Series.Add(this.series_guide);
+
+        #endregion guide
 
         var add = new Button()
         {
@@ -298,6 +380,59 @@ internal sealed class ConcatenateForm : Form
             row.Series.Color = color;
         }
     } // private void SetColor ()
+
+    private void ToggleGuide(object? sender, EventArgs e)
+    {
+        this.nud_guideIntercept.Enabled =
+        this.nud_guideSlope.Enabled =
+        this.btn_guideColor.Enabled = this.cb_showGuide.Checked;
+
+        if (this.cb_showGuide.Checked)
+        {
+            UpdateGuide();
+            this._chart.Series.Add(this.series_guide);
+        }
+        else
+        {
+            this._chart.Series.Remove(this.series_guide);
+        }
+    } // private void ToggleGuide (object?, EventArgs)
+
+    private void UpdateGuide(object? sender, EventArgs e)
+        => UpdateGuide();
+
+    private void UpdateGuide()
+    {
+        if (!this.cb_showGuide.Checked) return;
+
+        var intercept = (double)this.nud_guideIntercept.Value;
+        var slope = (double)this.nud_guideSlope.Value;
+        this.series_guide.Points.Clear();
+        void AddPoint(double x)
+            => this.series_guide.Points.AddXY(x, intercept * Math.Pow(x, -slope));
+        AddPoint(1e-6);
+        AddPoint(1e6);
+    } // private void UpdateGuide ()
+
+    private void ChangeGuideColor(object? sender, EventArgs e)
+    {
+        using var cd = new ColorDialog()
+        {
+            Color = Program.GuideLineColor,
+        };
+        if (cd.ShowDialog() != DialogResult.OK) return;
+        Program.GuideLineColor = cd.Color;
+        SetGuideColor();
+    } // private void ChangeGuideColor (object?, EventArgs)
+
+    private void SetGuideColor()
+    {
+        var color = Program.GuideLineColor;
+        this.btn_guideColor.BackColor = color;
+        this.btn_guideColor.ForeColor = UIUtils.CalcInvertColor(color);
+        this.btn_guideColor.Text = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+        this.series_guide.Color = color;
+    } // private void SetGuideColor ()
 
     private void SaveToFile(object? sender, EventArgs e)
         => SaveToFile();

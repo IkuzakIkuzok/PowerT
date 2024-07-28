@@ -5,10 +5,14 @@ using System.Text.RegularExpressions;
 
 namespace PowerT;
 
+/// <summary>
+/// Provides a string comparer for natural sorting.
+/// </summary>
 internal sealed partial class StringComparer : IComparer<string>
 {
     private static readonly Regex re_textNum = NamePartsPattern();
 
+    /// <inheritdoc/>
     public int Compare(string? s1, string? s2)
     {
         if (s1 == s2) return 0;

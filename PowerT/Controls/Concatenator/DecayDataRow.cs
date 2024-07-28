@@ -5,6 +5,7 @@ using PowerT.Data;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls.Concatenator;
+
 internal sealed class DecayDataRow : DataGridViewRow
 {
     /// <summary>

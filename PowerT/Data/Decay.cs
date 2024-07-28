@@ -52,6 +52,9 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
     /// </summary>
     internal double SignalMax => this.signals.Max();
 
+    /// <summary>
+    /// Gets the absolute decay data.
+    /// </summary>
     internal Decay Absolute => new(this.times, this.signals.Select(Math.Abs).ToArray());
 
     /// <summary>
@@ -97,14 +100,22 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         }
     } // internal static Decay FromFile (string, [int], [int])
 
+    /// <inheritdoc/>
     public IEnumerator<(double Time, double Signal)> GetEnumerator()
     {
         for (var i = 0; i < this.times.Length; i++)
             yield return (Time: this.times[i], Signal: this.signals[i]);
     } // public IEnumerator<(double Time, double Signal)> GetEnumerator()
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <summary>
+    /// Gets the decay data of the specified range.
+    /// </summary>
+    /// <param name="start">The start time of the range.</param>
+    /// <param name="end">The end time of the range.</param>
+    /// <returns>The decay data of the specified range.</returns>
     internal Decay OfRange(double start, double end)
     {
         var startIndex = Array.BinarySearch(this.times, start);
@@ -114,6 +125,11 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         return new(this.times[startIndex..endIndex], this.signals[startIndex..endIndex]);
     } // internal Decay OfRange (double, double)
 
+    /// <summary>
+    /// Adds the time.
+    /// </summary>
+    /// <param name="time">The time</param>
+    /// <returns>The decay data with the shifted time.</returns>
     internal Decay AddTime(double time)
         => new(this.times.Select(t => t + time).ToArray(), this.signals);
 

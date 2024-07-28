@@ -11,9 +11,15 @@ internal sealed class DecayDataTable : DataGridView
 {
     private static readonly StringComparer _comparer = new();
 
+    /// <summary>
+    /// Gets the decay data rows.
+    /// </summary>
     internal IEnumerable<DecayDataRow> DecayDataRows
         => this.Rows.OfType<DecayDataRow>();
 
+    /// <summary>
+    /// Gets a value indicating whether the decay data rows are ordered by time.
+    /// </summary>
     internal bool IsOrdered
     {
         get
@@ -30,6 +36,9 @@ internal sealed class DecayDataTable : DataGridView
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DecayDataTable"/> class.
+    /// </summary>
     internal DecayDataTable()
     {
         this.AllowUserToAddRows = false;
@@ -170,6 +179,12 @@ internal sealed class DecayDataTable : DataGridView
         base.OnCellValueChanged(e);
     } // override protected void OnCellValueChanged (e)
 
+    /// <summary>
+    /// Adds a decay data row.
+    /// </summary>
+    /// <param name="name">The name of the dacay.</param>
+    /// <param name="decay">The dacay.</param>
+    /// <returns>The new row.</returns>
     internal DecayDataRow Add(string name, Decay decay)
     {
         var series = new Series(name)
@@ -186,9 +201,9 @@ internal sealed class DecayDataTable : DataGridView
 
         var useFrom =
             GetFaster(decay).Where(row => row.Index != index)
-                                    .Select(row => row.UseTo)
-                                    .Append(0.0)
-                                    .Max();
+                            .Select(row => row.UseTo)
+                            .Append(0.0)
+                            .Max();
         var useTo = decay.Times.TakeLast(50).First();
 
         // At least one point must be included in any range with a width of 2 * TimeStep.

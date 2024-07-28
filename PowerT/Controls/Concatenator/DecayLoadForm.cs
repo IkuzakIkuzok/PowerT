@@ -402,17 +402,25 @@ internal sealed class DecayLoadForm : Form
             var decay_ab = Decay.FromFile(file_ab, 1e6, 1e6).Absolute;
             var decay_b = Decay.FromFile(file_b, 1e6, 1e6);
 
+            this._deacy = decay_ab;
+
+            // Time origin cannot be later than 25% of the b signal.
+            // Reduce data points to improve performance.
+            var timeMax = decay_b.TimeMax * 0.25;
+            decay_ab = decay_ab.OfRange(0, timeMax);
+            decay_b = decay_b.OfRange(0, timeMax);
+
             this._chart.Series.Clear();
             var series_ab = new Series()
             {
-                ChartType = SeriesChartType.Line,
+                ChartType = SeriesChartType.FastLine,
                 BorderWidth = 2,
                 Color = Color.Blue,
                 LegendText = "a\u2212b",
             };
             var series_b = new Series()
             {
-                ChartType = SeriesChartType.Line,
+                ChartType = SeriesChartType.FastLine,
                 BorderWidth = 2,
                 Color = Color.Red,
                 LegendText = "b",
@@ -427,17 +435,17 @@ internal sealed class DecayLoadForm : Form
             this._chart.Series.Add(series_ab);
             this._chart.Series.Add(series_b);
 
-            var t0 = decay_b.Take(1000).MinBy(x => x.Signal).Time;
+            var t0 = decay_b.MinBy(x => x.Signal).Time;
 
-            this.nud_timeFrom.Value = (decimal)(t0 * 0.75);
-            this.nud_timeTo.Value = (decimal)(t0 * 1.25);
+            this.nud_timeFrom.Value = (decimal)(t0 * 0.9);
+            this.nud_timeTo.Value = (decimal)(t0 * 1.1);
             this.nud_signalFrom.Value = (decimal)0.0;
-            this.nud_signalTo.Value = (decimal)(decay_b.OfRange(0, t0 * 2).Absolute.SignalMax * 1.2);
+            this.nud_signalTo.Value = (decimal)(decay_b.Absolute.SignalMax * 1.2);
 
             var time_increment = (decimal)Math.Pow(10, Math.Ceiling(Math.Log10(decay_b.TimeMax)) - 2);
             this.nud_timeFrom.Increment = this.nud_timeFrom.ScrollIncrement = time_increment;
             this.nud_timeTo.Increment = this.nud_timeTo.ScrollIncrement = time_increment;
-
+             
             var signal_increment = (decimal)Math.Pow(10, Math.Ceiling(Math.Log10(Math.Max(decay_ab.SignalMax, decay_b.SignalMax))) - 2);
             this.nud_signalFrom.Increment = this.nud_signalFrom.ScrollIncrement = signal_increment;
 
@@ -445,8 +453,6 @@ internal sealed class DecayLoadForm : Form
             this.nud_t0.Increment = this.nud_t0.ScrollIncrement = (decimal)decay_b.TimeStep;
             this._chart.Series.Add(this.series_t0);
             Draw0();
-
-            this._deacy = decay_ab;
         }
         catch (Exception e)
         {
@@ -464,13 +470,17 @@ internal sealed class DecayLoadForm : Form
 
     private void SetDisplayRange(object? sender, EventArgs e)
     {
+        var xInterval = Math.Pow(10, Math.Ceiling(Math.Log10(this.axisX.Maximum - this.axisX.Minimum)) - 2) * 2;
         this.axisX.Minimum = (double)this.nud_timeFrom.Value;
         this.axisX.Maximum = (double)this.nud_timeTo.Value;
-        this.axisX.Interval = Math.Pow(10, Math.Ceiling(Math.Log10(this.axisX.Maximum - this.axisX.Minimum)) - 2) * 2;
+        this.axisX.Interval = xInterval;
+        this.axisX.MinorGrid.Interval = xInterval / 10;
 
+        var yInterval = Math.Pow(10, Math.Ceiling(Math.Log10(this.axisY.Maximum - this.axisY.Minimum)) - 2);
         this.axisY.Minimum = (double)this.nud_signalFrom.Value;
         this.axisY.Maximum = (double)this.nud_signalTo.Value;
-        this.axisY.Interval = Math.Pow(10, Math.Ceiling(Math.Log10(this.axisY.Maximum - this.axisY.Minimum)) - 1);
+        this.axisY.Interval = yInterval;
+        this.axisY.MinorGrid.Interval = yInterval / 10;
     } // private void SetDisplayRange (object?, EventArgs)
 
     private void Draw0()
@@ -490,8 +500,7 @@ internal sealed class DecayLoadForm : Form
 
         var t0 = (double)this.nud_t0.Value;
 
-        var times = this._deacy.Times.Select(x => x - t0).ToArray();
-        this.Decay = new(times, this._deacy.Signals.ToArray());
+        this.Decay = this._deacy.AddTime(-t0);
         this.DialogResult = DialogResult.OK;
         Close();
     } // private void ClickOK (object?, EventArgs)

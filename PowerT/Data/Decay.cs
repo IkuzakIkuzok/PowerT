@@ -114,6 +114,9 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         return new(this.times[startIndex..endIndex], this.signals[startIndex..endIndex]);
     } // internal Decay OfRange (double, double)
 
+    internal Decay AddTime(double time)
+        => new(this.times.Select(t => t + time).ToArray(), this.signals);
+
     /// <summary>
     /// Estimates the parameters.
     /// </summary>

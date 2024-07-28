@@ -400,7 +400,7 @@ internal sealed class DecayLoadForm : Form
         try
         {
             var decay_ab = Decay.FromFile(file_ab, 1e6, 1e6).Absolute;
-            var decay_b = Decay.FromFile(file_b, 1e6, 1e6).Absolute;
+            var decay_b = Decay.FromFile(file_b, 1e6, 1e6);
 
             this._chart.Series.Clear();
             var series_ab = new Series()
@@ -421,18 +421,18 @@ internal sealed class DecayLoadForm : Form
             foreach (var (time, signal) in decay_ab)
                 series_ab.Points.AddXY(time, signal);
 
-            foreach (var (time, signal) in decay_b)
+            foreach (var (time, signal) in decay_b.Absolute)
                 series_b.Points.AddXY(time, signal);
 
             this._chart.Series.Add(series_ab);
             this._chart.Series.Add(series_b);
 
-            var t0 = decay_b.Take(1000).MaxBy(x => x.Signal).Time;
+            var t0 = decay_b.Take(1000).MinBy(x => x.Signal).Time;
 
             this.nud_timeFrom.Value = (decimal)(t0 * 0.75);
             this.nud_timeTo.Value = (decimal)(t0 * 1.25);
             this.nud_signalFrom.Value = (decimal)0.0;
-            this.nud_signalTo.Value = (decimal)(decay_b.OfRange(0, t0 * 2).SignalMax * 1.2);
+            this.nud_signalTo.Value = (decimal)(decay_b.OfRange(0, t0 * 2).Absolute.SignalMax * 1.2);
 
             var time_increment = (decimal)Math.Pow(10, Math.Ceiling(Math.Log10(decay_b.TimeMax)) - 2);
             this.nud_timeFrom.Increment = this.nud_timeFrom.ScrollIncrement = time_increment;

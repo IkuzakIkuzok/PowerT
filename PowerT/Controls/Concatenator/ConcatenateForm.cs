@@ -336,8 +336,16 @@ internal sealed class ConcatenateForm : Form
         };
         this.btn_save.Click += SaveToFile;
 
+        Program.GradientChanged += SetColor;
+
         this._main_container.SplitterDistance = 400;
     } // ctor ()
+
+    override protected void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        Program.GradientChanged -= SetColor;
+    } // override protected void OnClosed (EventArgs)
 
     private void AddDecay(object? sender, EventArgs e)
         => AddDecay();
@@ -372,7 +380,10 @@ internal sealed class ConcatenateForm : Form
 
     private void SetColor()
     {
-        var gradient = new ColorGradient(Program.GradientStart, Program.GradientEnd, this._decaysTable.RowCount);
+        var count = this._decaysTable.RowCount;
+        if (count == 0) return;
+
+        var gradient = new ColorGradient(Program.GradientStart, Program.GradientEnd, count);
         foreach ((var i, var row) in this._decaysTable.DecayDataRows.Enumerate())
         {
             var color = gradient[i];

@@ -666,6 +666,8 @@ internal sealed partial class MainWindow : Form
 
     private void SetColor()
     {
+        if (this._decays.Count == 0) return;
+
         var gradient = new ColorGradient(Program.GradientStart, Program.GradientEnd, this._decays.Count);
         foreach ((var i, var row) in this._paramsTable.ParamsRows.Enumerate())
         {

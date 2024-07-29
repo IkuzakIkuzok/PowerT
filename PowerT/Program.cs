@@ -11,6 +11,8 @@ namespace PowerT;
 /// </summary>
 internal static class Program
 {
+    internal static event EventHandler? GradientChanged;
+
     internal static event EventHandler? AxisLabelFontChanged;
 
     internal static event EventHandler? AxisTitleFontChanged;
@@ -19,6 +21,8 @@ internal static class Program
     /// Gets the application configuration.
     /// </summary>
     internal static AppConfig Config { get; } = AppConfig.Load();
+
+    internal static MainWindow MainWindow { get; } = new();
 
     /// <summary>
     /// Gets or sets the gradient start color.
@@ -30,6 +34,7 @@ internal static class Program
         {
             Config.AppearanceConfig.ColorGradientConfig.StartColor.Color = value;
             Config.Save();
+            GradientChanged?.Invoke(null, EventArgs.Empty);
         }
     }
 
@@ -43,6 +48,7 @@ internal static class Program
         {
             Config.AppearanceConfig.ColorGradientConfig.EndColor.Color = value;
             Config.Save();
+            GradientChanged?.Invoke(null, EventArgs.Empty);
         }
     }
 
@@ -109,6 +115,6 @@ internal static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        Application.Run(new MainWindow());
+        Application.Run(MainWindow);
     } // private static void Main ()
 } // internal static class Program

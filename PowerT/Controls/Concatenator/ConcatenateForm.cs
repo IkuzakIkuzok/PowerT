@@ -19,7 +19,7 @@ internal sealed class ConcatenateForm : Form
     private readonly CheckBox cb_showGuide;
     private readonly LogarithmicNumericUpDown nud_guideIntercept;
     private readonly CustomNumericUpDown nud_guideSlope;
-    private readonly Button btn_guideColor;
+    private readonly ColorButton btn_guideColor;
     private readonly Series series_guide;
 
     internal ConcatenateForm()
@@ -439,9 +439,7 @@ internal sealed class ConcatenateForm : Form
     private void SetGuideColor()
     {
         var color = Program.GuideLineColor;
-        this.btn_guideColor.BackColor = color;
-        this.btn_guideColor.ForeColor = UIUtils.CalcInvertColor(color);
-        this.btn_guideColor.Text = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+        this.btn_guideColor.Color = color;
         this.series_guide.Color = color;
     } // private void SetGuideColor ()
 

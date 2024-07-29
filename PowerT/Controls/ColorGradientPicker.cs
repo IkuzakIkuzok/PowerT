@@ -11,9 +11,7 @@ internal class ColorGradientPicker : Form
     protected readonly ColorGradient colorGradient;
     private (Color, Color) returnColors;
 
-    protected readonly Button start;
-
-    protected readonly Button end;
+    protected readonly ColorButton start, end;
 
     protected readonly Label lb_gradient;
 
@@ -116,15 +114,8 @@ internal class ColorGradientPicker : Form
 
     protected virtual void SetColor()
     {
-        void SetButtonColor(Button button, Color color)
-        {
-            button.BackColor = color;
-            button.ForeColor = CalcInvertColor(color);
-            button.Text = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-        } // void SetButtonColor (Button, Color)
-
-        SetButtonColor(this.start, this.colorGradient.StartColor);
-        SetButtonColor(this.end, this.colorGradient.EndColor);
+        this.start.Color = this.colorGradient.StartColor;
+        this.end.Color = this.colorGradient.EndColor;
         this.colorGradient.FillRectangle(this.lb_gradient, LinearGradientMode.Horizontal);
     } // protected virtual void SetColor ()
 

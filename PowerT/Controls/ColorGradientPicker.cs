@@ -118,8 +118,5 @@ internal class ColorGradientPicker : Form
         this.end.Color = this.colorGradient.EndColor;
         this.colorGradient.FillRectangle(this.lb_gradient, LinearGradientMode.Horizontal);
     } // protected virtual void SetColor ()
-
-    protected virtual Color CalcInvertColor(Color color)
-        => UIUtils.CalcInvertColor(color);
 } // internal class ColorGradientPicker
 

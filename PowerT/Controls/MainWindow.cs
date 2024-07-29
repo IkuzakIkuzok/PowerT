@@ -5,6 +5,7 @@ using PowerT.Controls.Concatenator;
 using PowerT.Controls.Text;
 using PowerT.Data;
 using PowerT.Properties;
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -534,6 +535,23 @@ internal sealed partial class MainWindow : Form
         m_tools.DropDownItems.Add(m_concatenate);
 
         #endregion menu.tools
+
+        #region menu.help
+
+        var m_help = new ToolStripMenuItem()
+        {
+            Text = "&Help",
+        };
+        ms.Items.Add(m_help);
+
+        var m_guthub = new ToolStripMenuItem()
+        {
+            Text = "Open &GitHub repository",
+        };
+        m_guthub.Click += (sender, e) => Process.Start("explorer", Program.GITHUB_REPOSITORY);
+        m_help.DropDownItems.Add(m_guthub);
+
+        #endregion menu.help
 
         #endregion menu
 

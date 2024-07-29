@@ -11,6 +11,8 @@ namespace PowerT;
 /// </summary>
 internal static class Program
 {
+    internal const string GITHUB_REPOSITORY = "https://github.com/IkuzakIkuzok/PowerT";
+
     internal static event EventHandler? GradientChanged;
 
     internal static event EventHandler? AxisLabelFontChanged;

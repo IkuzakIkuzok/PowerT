@@ -38,7 +38,7 @@ public sealed class AppearanceConfig
     /// <summary>
     /// Gets or sets the color of the guide line.
     /// </summary>
-    public SerializableColor GuideLineColor { get; set; } = new() { Color = Color.Black };
+    public SerializableColor GuideLineColor { get; set; } = Color.Black;
 
     public AppearanceConfig() { }
 } // public sealed class AppearanceConfig

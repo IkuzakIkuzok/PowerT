@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace PowerT.Config;
 
 /// <summary>
-/// Wraps the <see cref="Color"/> class to serialize it.
+/// Wraps the <see cref="System.Drawing.Color"/> class to serialize it.
 /// </summary>
 [Serializable]
 public class SerializableColor
@@ -30,4 +30,10 @@ public class SerializableColor
     /// Initializes a new instance of the <see cref="SerializableColor"/> class.
     /// </summary>
     public SerializableColor() { }
+
+    public static implicit operator Color(SerializableColor color)
+        => color.Color;
+
+    public static implicit operator SerializableColor(Color color)
+        => new() { Color = color };
 } // public class SerializableColor

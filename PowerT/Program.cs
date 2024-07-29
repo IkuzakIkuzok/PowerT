@@ -43,10 +43,10 @@ internal static class Program
     /// </summary>
     internal static Color GradientStart
     {
-        get => Config.AppearanceConfig.ColorGradientConfig.StartColor.Color;
+        get => Config.AppearanceConfig.ColorGradientConfig.StartColor;
         set
         {
-            Config.AppearanceConfig.ColorGradientConfig.StartColor.Color = value;
+            Config.AppearanceConfig.ColorGradientConfig.StartColor = value;
             Config.Save();
             GradientChanged?.Invoke(null, EventArgs.Empty);
         }
@@ -57,10 +57,10 @@ internal static class Program
     /// </summary>
     internal static Color GradientEnd
     {
-        get => Config.AppearanceConfig.ColorGradientConfig.EndColor.Color;
+        get => Config.AppearanceConfig.ColorGradientConfig.EndColor;
         set
         {
-            Config.AppearanceConfig.ColorGradientConfig.EndColor.Color = value;
+            Config.AppearanceConfig.ColorGradientConfig.EndColor = value;
             Config.Save();
             GradientChanged?.Invoke(null, EventArgs.Empty);
         }
@@ -112,10 +112,10 @@ internal static class Program
     /// </summary>
     internal static Color GuideLineColor
     {
-        get => Config.AppearanceConfig.GuideLineColor.Color;
+        get => Config.AppearanceConfig.GuideLineColor;
         set
         {
-            Config.AppearanceConfig.GuideLineColor.Color = value;
+            Config.AppearanceConfig.GuideLineColor = value;
             Config.Save();
         }
     }

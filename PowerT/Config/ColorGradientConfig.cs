@@ -15,13 +15,13 @@ public sealed class ColorGradientConfig
     /// Gets or sets the start color of the gradient.
     /// </summary>
     [XmlElement("start")]
-    public SerializableColor StartColor { get; set; } = new() { Color = Color.Red };
+    public SerializableColor StartColor { get; set; } = Color.Red;
 
     /// <summary>
     /// Gets or sets the end color of the gradient.
     /// </summary>
     [XmlElement("end")]
-    public SerializableColor EndColor { get; set; } = new() { Color = Color.Blue };
+    public SerializableColor EndColor { get; set; } = Color.Blue;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorGradientConfig"/> class.

@@ -11,8 +11,14 @@ internal class LogarithmicNumericUpDown : NumericUpDown
 {
     protected Func<decimal, string>? _formatter;
 
+    /// <summary>
+    /// Gets or sets the bias of the digit order for incrementing.
+    /// </summary>
     internal int IncrementOrderBias { get; set; } = 0;
 
+    /// <summary>
+    /// Gets or sets the formatter for the text displayed in the spin box.
+    /// </summary>
     internal Func<decimal, string>? Formatter
     {
         get => this._formatter;

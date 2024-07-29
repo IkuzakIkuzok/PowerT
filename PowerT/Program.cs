@@ -13,10 +13,19 @@ internal static class Program
 {
     internal const string GITHUB_REPOSITORY = "https://github.com/IkuzakIkuzok/PowerT";
 
+    /// <summary>
+    /// Occurs when the color gradient is changed.
+    /// </summary>
     internal static event EventHandler? GradientChanged;
 
+    /// <summary>
+    /// Occurs when the axis label font is changed.
+    /// </summary>
     internal static event EventHandler? AxisLabelFontChanged;
 
+    /// <summary>
+    /// Occurs when the axis title font is changed.
+    /// </summary>
     internal static event EventHandler? AxisTitleFontChanged;
 
     /// <summary>
@@ -24,6 +33,9 @@ internal static class Program
     /// </summary>
     internal static AppConfig Config { get; } = AppConfig.Load();
 
+    /// <summary>
+    /// Gets the main window.
+    /// </summary>
     internal static MainWindow MainWindow { get; } = new();
 
     /// <summary>

@@ -3,6 +3,9 @@
 
 namespace PowerT.Controls;
 
+/// <summary>
+/// Represents a customizable numeric up-down control.
+/// </summary>
 [DesignerCategory("Code")]
 internal sealed class CustomNumericUpDown : NumericUpDown
 {
@@ -39,6 +42,9 @@ internal sealed class CustomNumericUpDown : NumericUpDown
 
     #endregion properties
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CustomNumericUpDown"/> class.
+    /// </summary>
     internal CustomNumericUpDown() : base()
     {
         this.Increment = 1;

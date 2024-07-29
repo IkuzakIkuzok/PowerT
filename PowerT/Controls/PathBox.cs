@@ -3,9 +3,15 @@
 
 namespace PowerT.Controls;
 
+/// <summary>
+/// Represents a text box for file paths.
+/// </summary>
 [DesignerCategory("Code")]
 internal class PathBox : TextBox
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PathBox"/> class.
+    /// </summary>
     internal PathBox()
     {
         this.AllowDrop = true;

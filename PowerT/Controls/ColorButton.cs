@@ -3,9 +3,15 @@
 
 namespace PowerT.Controls;
 
+/// <summary>
+/// Represents a button that displays a color.
+/// </summary>
 [DesignerCategory("Code")]
 internal class ColorButton : Button
 {
+    /// <summary>
+    /// Gets the text of the button.
+    /// </summary>
     new internal string Text
     {
         get => base.Text;
@@ -18,6 +24,9 @@ internal class ColorButton : Button
         }
     }
 
+    /// <summary>
+    /// Gets the foreground color of the button.
+    /// </summary>
     new internal Color ForeColor
     {
         get => base.ForeColor;
@@ -30,6 +39,9 @@ internal class ColorButton : Button
         }
     }
 
+    /// <summary>
+    /// Gets the background color of the button.
+    /// </summary>
     new internal Color BackColor
     {
         get => base.BackColor;
@@ -42,6 +54,9 @@ internal class ColorButton : Button
         }
     }
 
+    /// <summary>
+    /// Gets or sets the color of the button.
+    /// </summary>
     internal Color Color
             {
         get => this.BackColor;
@@ -56,9 +71,19 @@ internal class ColorButton : Button
         }
     }
 
+    /// <summary>
+    /// Calculates the text color based on the specified color.
+    /// </summary>
+    /// <param name="color">The color.</param>
+    /// <returns>The calculated appropriate text color.</returns>
     protected virtual Color CalculateTextColor(Color color)
         => UIUtils.CalcInvertColor(color);
 
+    /// <summary>
+    /// Gets the string representation of the specified color.
+    /// </summary>
+    /// <param name="color">The color.</param>
+    /// <returns>The string representation of the color.</returns>
     protected virtual string GetColorText(Color color)
         => $"#{color.R:X2}{color.G:X2}{color.B:X2}";
 } // internal class ColorButton : Button

@@ -5,11 +5,14 @@ using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
 
 namespace PowerT.Controls;
 
+/// <summary>
+/// Represents a color gradient picker.
+/// </summary>
 [DesignerCategory("Code")]
 internal class ColorGradientPicker : Form
 {
     protected readonly ColorGradient colorGradient;
-    private (Color, Color) returnColors;
+    private (Color Start, Color End) returnColors;
 
     protected readonly ColorButton start, end;
 
@@ -17,6 +20,11 @@ internal class ColorGradientPicker : Form
 
     private readonly Button ok, cancel;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ColorGradientPicker"/> class.
+    /// </summary>
+    /// <param name="startColor">The default start color.</param>
+    /// <param name="endColor">The default end color.</param>
     internal ColorGradientPicker(Color startColor, Color endColor)
     {
         this.Text = "Color gradient";
@@ -85,11 +93,15 @@ internal class ColorGradientPicker : Form
 
     internal ColorGradientPicker() : this(Color.Red, Color.Blue) { }
 
-    new internal (Color, Color) ShowDialog()
+    /// <summary>
+    /// Shows the dialog.
+    /// </summary>
+    /// <returns>The selected start and end colors.</returns>
+    new internal (Color Start, Color End) ShowDialog()
     {
         base.ShowDialog();
         return this.returnColors;
-    } // new internal (Color, Color) ShowDialog ()
+    } // new internal (Color Start, Color End) ShowDialog ()
 
     private static Color SelectColor(Color color)
     {
@@ -119,4 +131,3 @@ internal class ColorGradientPicker : Form
         this.colorGradient.FillRectangle(this.lb_gradient, LinearGradientMode.Horizontal);
     } // protected virtual void SetColor ()
 } // internal class ColorGradientPicker
-

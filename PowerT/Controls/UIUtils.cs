@@ -5,11 +5,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace PowerT.Controls;
+
+/// <summary>
+/// Utility methods for UI.
+/// </summary>
 internal static partial class UIUtils
 {
     [GeneratedRegex(@"(?<mantissa>.*)(E(?<exponent>.*))")]
     private static partial Regex re_expFormat();
 
+    /// <summary>
+    /// Formats the specified value in exponential notation.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>String representation of the value in exponential notation.</returns>
     internal static string ExpFormatter(decimal value)
     {
         var s = value.ToString("E2");
@@ -52,6 +61,11 @@ internal static partial class UIUtils
         return sb.ToString();
     } // internal static string ExpFormatter (decimal)
 
+    /// <summary>
+    /// Calculates the inverted color of the specified color.
+    /// </summary>
+    /// <param name="color">The color.</param>
+    /// <returns>The inverted color.</returns>
     internal static Color CalcInvertColor(Color color)
     {
         var r = color.R;

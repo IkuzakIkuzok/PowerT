@@ -7,6 +7,9 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls;
 
+/// <summary>
+/// Represents a parameters table.
+/// </summary>
 [DesignerCategory("Code")]                      
 internal sealed class ParamsTable : DataGridView
 {

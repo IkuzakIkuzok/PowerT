@@ -6,6 +6,9 @@ namespace PowerT.Controls;
 using System.Diagnostics;
 using Timer = System.Windows.Forms.Timer;
 
+/// <summary>
+/// Displays a message box that fades out without blocking the main thread.
+/// </summary>
 [DesignerCategory("Code")]
 internal class FadingMessageBox : Form
 {
@@ -31,6 +34,10 @@ internal class FadingMessageBox : Form
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FadingMessageBox"/> class.
+    /// </summary>
+    /// <param name="parent">The parent form.</param>
     private FadingMessageBox(Form parent)
     {
         this.Size = this.MinimumSize = this.MaximumSize = new Size(500, 150);
@@ -54,6 +61,15 @@ internal class FadingMessageBox : Form
         };
     } // ctor (Form)
 
+    /// <summary>
+    /// Displays a message box that fades out without blocking the main thread.
+    /// </summary>
+    /// <param name="text">A <see cref="string"/> that specifies the text to display.</param>
+    /// <param name="initialOpacity">The initial opacity of the message box.</param>
+    /// <param name="initInterval">Time to maintain a initial opacity after the message box is displayed.</param>
+    /// <param name="fadeInterval">Fading interval.</param>
+    /// <param name="fadeRate">The fading rate for each <paramref name="fadeInterval"/>.</param>
+    /// <param name="parentControl">The parent form of the message box.</param>
     internal static void Show(
         string text,
         double initialOpacity = 0.8,

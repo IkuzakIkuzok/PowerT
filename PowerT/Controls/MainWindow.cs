@@ -534,6 +534,13 @@ internal sealed partial class MainWindow : Form
         m_concatenate.Click += (sender, e) => new ConcatenateForm().Show();
         m_tools.DropDownItems.Add(m_concatenate);
 
+        var m_filenameFormat = new ToolStripMenuItem()
+        {
+            Text = "&Filename Format",
+        };
+        m_filenameFormat.Click += EditFilenameFormat;
+        m_tools.DropDownItems.Add(m_filenameFormat);
+
         #endregion menu.tools
 
         #region menu.help
@@ -875,4 +882,17 @@ internal sealed partial class MainWindow : Form
             catch { /* row not found */ }
         }
     } // private void PasteFromClipboard (object?, EventArgs)
+
+    private static void EditFilenameFormat(object? sender, EventArgs e)
+    {
+        using var fnfd = new FileNameFormatDialog()
+        {
+            AMinusBFormat = Program.AMinusBSignalFormat,
+            BFormat = Program.BSignalFormat,
+        };
+        if (fnfd.ShowDialog() != DialogResult.OK) return;
+
+        Program.AMinusBSignalFormat = fnfd.AMinusBFormat;
+        Program.BSignalFormat = fnfd.BFormat;
+    } // private static void EditFilenameFormat (object?, EventArgs)
 } // internal sealed partial class MainWindow : Form

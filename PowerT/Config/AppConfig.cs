@@ -25,6 +25,12 @@ public sealed class AppConfig
     public AppearanceConfig AppearanceConfig { get; set; } = new();
 
     /// <summary>
+    /// Gets or sets the decay loading configuration.
+    /// </summary>
+    [XmlElement("decay-loading")]
+    public DecayLoadingConfig DecayLoadingConfig { get; set; } = new();
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="AppConfig"/> class.
     /// </summary>
     public AppConfig() { }

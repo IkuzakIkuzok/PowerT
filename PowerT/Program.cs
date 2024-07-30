@@ -121,6 +121,32 @@ internal static class Program
     }
 
     /// <summary>
+    /// Gets or sets the filename format of the A-B signal.
+    /// </summary>
+    internal static string AMinusBSignalFormat
+    {
+        get => Config.DecayLoadingConfig.AMinusBSignalFormat;
+        set
+        {
+            Config.DecayLoadingConfig.AMinusBSignalFormat = value;
+            Config.Save();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the filename format of the B signal.
+    /// </summary>
+    internal static string BSignalFormat
+    {
+        get => Config.DecayLoadingConfig.BSignalFormat;
+        set
+        {
+            Config.DecayLoadingConfig.BSignalFormat = value;
+            Config.Save();
+        }
+    }
+
+    /// <summary>
     ///  The main entry point for the application.
     /// </summary>
     [STAThread]

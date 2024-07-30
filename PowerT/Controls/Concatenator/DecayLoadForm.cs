@@ -357,8 +357,14 @@ internal sealed class DecayLoadForm : Form
 
         var basename = Path.GetFileName(folder);
 
-        var file_ab = Path.Combine(folder, $"{basename}-a-b-tdm.csv");
-        var file_b = Path.Combine(folder, $"{basename}-b.csv");
+        var format_ab = Program.AMinusBSignalFormat;
+        var format_b = Program.BSignalFormat;
+
+        var name_ab = FileNameHandler.GetFileName(basename, format_ab);
+        var name_b = FileNameHandler.GetFileName(basename, format_b);
+
+        var file_ab = Path.Combine(folder, name_ab);
+        var file_b = Path.Combine(folder, name_b);
 
         if (!File.Exists(file_ab) || !File.Exists(file_b)) return;
 

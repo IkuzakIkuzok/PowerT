@@ -22,7 +22,7 @@ internal static partial class FileNameHandler
 
                 if (pattern != "<BASENAME>") // <BASENAME|...>
                 {
-                    var replaces = m.Value[10..^1].Split('|');
+                    var replaces = pattern[10..^1].Split('|');
                     foreach (var replace in replaces)
                     {
                         var kv = replace.Split('=');
@@ -30,7 +30,7 @@ internal static partial class FileNameHandler
                     }
                 }
 
-                filename = filename.Replace(m.Value, s_basename);
+                filename = filename.Replace(pattern, s_basename);
             }
 
             return filename;

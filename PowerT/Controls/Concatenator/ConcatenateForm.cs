@@ -336,6 +336,15 @@ internal sealed class ConcatenateForm : Form
         };
         this.btn_save.Click += SaveToFile;
 
+        var clear = new Button()
+        {
+            Text = "Clear",
+            Location = new(230, 100),
+            Size = new(80, 40),
+            Parent = this._decays_container.Panel2,
+        };
+        clear.Click += ClearData;
+
         Program.GradientChanged += SetColor;
 
         this._main_container.SplitterDistance = 400;
@@ -493,4 +502,22 @@ internal sealed class ConcatenateForm : Form
             MessageBox.Show($"An error occurred: {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     } // private void SaveToFile ()
+
+    private void ClearData(object? sender, EventArgs e)
+    {
+        if (this._decaysTable.RowCount == 0) return;
+
+        var dr = MessageBox.Show(
+            "Do you want to clear all decays?",
+            "Warning",
+            MessageBoxButtons.OKCancel,
+            MessageBoxIcon.Warning
+        );
+        if (dr != DialogResult.OK) return;
+
+        foreach (var row in this._decaysTable.DecayDataRows)
+            this._chart.Series.Remove(row.Series);
+        this._decaysTable.Rows.Clear();
+        this.btn_save.Enabled = false;
+    } // private void ClearData (object?, EventArgs)
 } // internal sealed class ConcatenateForm : Form

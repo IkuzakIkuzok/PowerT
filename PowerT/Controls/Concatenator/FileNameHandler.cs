@@ -5,10 +5,19 @@ using System.Text.RegularExpressions;
 
 namespace PowerT.Controls.Concatenator;
 
+/// <summary>
+/// Handles the filename of data files.
+/// </summary>
 internal static partial class FileNameHandler
 {
     private static readonly Regex re_basename= BasenamePattern();
 
+    /// <summary>
+    /// Gets the filename from the basename and the format.
+    /// </summary>
+    /// <param name="basename">The basename.</param>
+    /// <param name="format">The format.</param>
+    /// <returns>The filename from the basename and the format.</returns>
     internal static string GetFileName(string basename, string format)
     {
         var filename = format;

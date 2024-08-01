@@ -18,6 +18,14 @@ internal sealed class DecayDataTable : DataGridView
         => this.Rows.OfType<DecayDataRow>();
 
     /// <summary>
+    /// Gets the decay data row by index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The row whose index is equal to the specified value.</returns>
+    internal DecayDataRow this[int index]
+        => (DecayDataRow)this.Rows[index];
+
+    /// <summary>
     /// Gets a value indicating whether the decay data rows are ordered by time.
     /// </summary>
     internal bool IsOrdered
@@ -26,8 +34,8 @@ internal sealed class DecayDataTable : DataGridView
         {
             for (var i = 1; i < this.Rows.Count; i++)
             {
-                var row0 = (DecayDataRow)this.Rows[i - 1];
-                var row1 = (DecayDataRow)this.Rows[i];
+                var row0 = this[i - 1];
+                var row1 = this[i];
 
                 if (row0.TimeEnd > row1.TimeEnd)
                     return false;
@@ -120,7 +128,7 @@ internal sealed class DecayDataTable : DataGridView
         if (e.ColumnIndex < 0 || e.RowIndex < 0)
             return;
 
-        var row = (DecayDataRow)this.Rows[e.RowIndex];
+        var row = this[e.RowIndex];
         var decay = row.Decay;
         var useFrom = row.UseFrom;
         var useTo = row.UseTo;
@@ -210,7 +218,7 @@ internal sealed class DecayDataTable : DataGridView
         if (useFrom > useTo - decay.TimeStep * 2)
             useFrom = useTo - decay.TimeStep * 2;
 
-        row = (DecayDataRow)this.Rows[index];
+        row = this[index];
         row.Cells[0].Value = name;
         row.Cells[1].Value = decay.TimeMin;
         row.Cells[2].Value = decay.TimeMax;

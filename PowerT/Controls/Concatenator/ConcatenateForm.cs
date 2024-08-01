@@ -121,6 +121,7 @@ internal sealed class ConcatenateForm : Form
             var series = row.Series;
             this._chart.Series.Remove(series);
         };
+        this._decaysTable.UserDeletedRow += SetColor;
         this._decaysTable.DragEnter += (sender, e) =>
         {
             if (e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false)

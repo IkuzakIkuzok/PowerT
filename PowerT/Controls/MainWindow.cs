@@ -582,11 +582,6 @@ internal sealed partial class MainWindow : Form
         };
     } // ctor ()
 
-    private void _paramsTable_UserDeletingRow(object? sender, DataGridViewRowCancelEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-
     private void SourcesDragEnter(object? sender, DragEventArgs e)
     {
         if (!(e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false)) return;

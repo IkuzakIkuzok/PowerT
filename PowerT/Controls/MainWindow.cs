@@ -130,14 +130,7 @@ internal sealed partial class MainWindow : Form
             AxisY = this.axisY,
         });
 
-        var dummy = new Series()
-        {
-            ChartType = SeriesChartType.Point,
-            IsVisibleInLegend = false,
-            IsXValueIndexed = false,
-        };
-        dummy.Points.AddXY(1e-6, 1e-6);
-        this._chart.Series.Add(dummy);
+        AddDummySeries();
 
         this.axisX.IsLogarithmic = this.axisY.IsLogarithmic = true;
         this.axisX.LabelStyle.Font = this.axisY.LabelStyle.Font = Program.AxisLabelFont;
@@ -157,10 +150,20 @@ internal sealed partial class MainWindow : Form
             Dock = DockStyle.Fill,
             SyncAlpha = true,
             SyncTauT = true,
+            AllowUserToDeleteRows = true,
             Parent = this._params_container.Panel1,
         };
         this._paramsTable.Sorted += SetColor;
         this._paramsTable.RowMoved += SetColor;
+        this._paramsTable.UserDeletingRow += (sender, e) =>
+        {
+            if (e.Row is not ParamsRow row) return;
+            var observed = row.ObservedSeries;
+            var fitted = row.FittedSeries;
+            if (observed is not null) this._chart.Series.Remove(observed);
+            if (fitted is not null) this._chart.Series.Remove(fitted);
+        };
+        this._paramsTable.UserDeletedRow += SetColor;
 
         this.cb_syncAlpha = new()
         {
@@ -509,6 +512,13 @@ internal sealed partial class MainWindow : Form
 
         m_data.DropDownItems.Add(new ToolStripSeparator());
 
+        var m_clearRows = new ToolStripMenuItem()
+        {
+            Text = "Clear &data",
+        };
+        m_clearRows.Click += ClearRows;
+        m_data.DropDownItems.Add(m_clearRows);
+
         this.m_clearBeforeLoad = new()
         {
             Text = "&Clear before Load",
@@ -572,6 +582,11 @@ internal sealed partial class MainWindow : Form
         };
     } // ctor ()
 
+    private void _paramsTable_UserDeletingRow(object? sender, DataGridViewRowCancelEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
     private void SourcesDragEnter(object? sender, DragEventArgs e)
     {
         if (!(e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false)) return;
@@ -620,6 +635,7 @@ internal sealed partial class MainWindow : Form
 
             this._paramsTable.Rows.Clear();
             this._chart.Series.Clear();
+            AddDummySeries();
             var gradient = new ColorGradient(Program.GradientStart, Program.GradientEnd, this._decays.Count);
             foreach ((var i, var (name, decay)) in this._decays.Enumerate())
             {
@@ -736,6 +752,47 @@ internal sealed partial class MainWindow : Form
         if (sfd.ShowDialog() != DialogResult.OK) return;
         this._chart.SaveImage(sfd.FileName, ChartImageFormat.Png);
     } // private void SevePlot (object?, EventArgs)
+
+    private void AddDummySeries()
+    {
+        var dummy = new Series()
+        {
+            ChartType = SeriesChartType.Point,
+            IsVisibleInLegend = false,
+            IsXValueIndexed = false,
+        };
+        dummy.Points.AddXY(1e-6, 1e-6);
+        this._chart.Series.Add(dummy);
+    } // private void AddDummySeries ()
+
+    private void ClearRows(object? sender, EventArgs e)
+    {
+        if (this._paramsTable.Rows.Count == 0) return;
+        var dr = MessageBox.Show(
+            "Clear all rows?",
+            "Clear",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question
+        );
+        if (dr != DialogResult.Yes) return;
+        ClearRows();
+    } // private void ClearRows (object?, EventArgs)
+
+    private void ClearRows()
+    {
+        while (this._paramsTable.Rows.Count > 0)
+            RemoveRow(this._paramsTable[0]);
+    } // private void ClearRows ()
+
+    private void RemoveRow(ParamsRow row)
+    {
+        var observed = row.ObservedSeries;
+        var fitted = row.FittedSeries;
+        if (observed is not null) this._chart.Series.Remove(observed);
+        if (fitted is not null) this._chart.Series.Remove(fitted);
+        this._paramsTable.Rows.Remove(row);
+        SetColor();
+    } // private void RemoveRow (ParamsRow)
 
     private void ToggleOberserved(object? sender, EventArgs e)
     {

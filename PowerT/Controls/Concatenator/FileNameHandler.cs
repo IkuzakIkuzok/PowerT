@@ -50,6 +50,6 @@ internal static partial class FileNameHandler
         }
     } // internal static string GetFileName (string, string)
 
-    [GeneratedRegex(@"<BASENAME(\|[^|=]+=[^|=]+)*>", RegexOptions.Compiled)]
+    [GeneratedRegex(@"<BASENAME(\|[^|=]+=[^|=]*)*>", RegexOptions.Compiled)]
     private static partial Regex BasenamePattern();
 } // internal static class FileNameHandler

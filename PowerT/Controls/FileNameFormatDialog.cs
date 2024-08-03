@@ -2,6 +2,7 @@
 // (c) 2024 Kazuki Kohzuki
 
 using PowerT.Controls.Concatenator;
+using PowerT.Properties;
 
 namespace PowerT.Controls;
 
@@ -29,6 +30,7 @@ internal sealed class FileNameFormatDialog : Form
         this.Text = "Filename format";
         this.Size = this.MinimumSize = this.MaximumSize = new Size(400, 300);
         this.MaximizeBox = false;
+        this.Icon = Resources.Icon;
 
         _ = new Label()
         {

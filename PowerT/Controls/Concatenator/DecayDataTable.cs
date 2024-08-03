@@ -180,8 +180,8 @@ internal sealed class DecayDataTable : DataGridView
             var scaling = row.Scaling;
 
             series.Points.Clear();
-            foreach (var (time, signal) in row.Used)
-                series.Points.AddXY(time, signal * scaling);
+            foreach (var (time, signal) in row.Used * scaling)
+                series.Points.AddXY(time, signal);
         }
 
         base.OnCellValueChanged(e);

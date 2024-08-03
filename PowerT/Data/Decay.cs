@@ -169,4 +169,14 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         var intercept = (Sxx * Sy - Sx * Sxy) / denom;
         return (slope, intercept);
     } // private static (double, double) LinearRegression (IEnumerable<double>, IEnumerable<double>)
+
+    #region operators
+
+    public static Decay operator *(Decay decay, double scaling)
+        => new(decay.times, decay.signals.Select(s => s * scaling).ToArray());
+
+    public static Decay operator /(Decay decay, double scaling)
+        => new(decay.times, decay.signals.Select(s => s / scaling).ToArray());
+
+    #endregion operators
 } // internal sealed class Decay : IEnumerable<(double Time, double Signal)>

@@ -432,11 +432,8 @@ internal sealed class DecayLoadForm : Form
                 LegendText = "b",
             };
 
-            foreach (var (time, signal) in decay_ab)
-                series_ab.Points.AddXY(time, signal);
-
-            foreach (var (time, signal) in decay_b.Absolute)
-                series_b.Points.AddXY(time, signal);
+            series_ab.Points.AddDecay(decay_ab);
+            series_b.Points.AddDecay(decay_b.Absolute);
 
             this._chart.Series.Add(series_ab);
             this._chart.Series.Add(series_b);

@@ -1,8 +1,10 @@
 ﻿
 // (c) 2024 Kazuki Kohzuki
 
+using PowerT.Data;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls;
 
@@ -74,4 +76,15 @@ internal static partial class UIUtils
         var m = 255;
         return Color.FromArgb(color.A, m - r, m - g, m - b);
     } // internal static Color CalcInvertColor (Color)
+
+    /// <summary>
+    /// Adds the specified decay to the data points.
+    /// </summary>
+    /// <param name="points">The points.</param>
+    /// <param name="decay">The decay.</param>
+    internal static void AddDecay(this DataPointCollection points, Decay decay)
+    {
+        foreach (var (time, signal) in decay)
+            points.AddXY(time, signal);
+    } // internal static void AddDecay (this DataPointCollection, Decay)
 } // internal static partial class UIUtils

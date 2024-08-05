@@ -590,7 +590,15 @@ internal sealed partial class MainWindow : Form
     {
         if (!(e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false)) return;
         if (e.Data.GetData(DataFormats.FileDrop) is not string[] files) return;
-        this.tb_sources.Text = string.Join(';', files);
+        try
+        {
+            this.tb_sources.Text = string.Join(';', files);
+        }
+        catch (OutOfMemoryException)
+        {
+            if (files.Length > 0)
+                this.tb_sources.Text = files[0];
+        }
     } // private void SourcesDragDrop (object?, DragEventArgs)
 
     private void BrowseSources(object? sender, EventArgs e)
@@ -605,7 +613,14 @@ internal sealed partial class MainWindow : Form
             Multiselect = true,
         };
         if (ofd.ShowDialog() != DialogResult.OK) return false;
-        this.tb_sources.Text = string.Join(';', ofd.FileNames);
+        try
+        {
+            this.tb_sources.Text = string.Join(';', ofd.FileNames);
+        }
+        catch (OutOfMemoryException)
+        {
+            this.tb_sources.Text = ofd.FileName;
+        }
         return true;
     } // private bool BrowseSources ()
 
@@ -828,26 +843,40 @@ internal sealed partial class MainWindow : Form
         var rows =this._paramsTable.ParamsRows.Where(row => row.Show);
         if (!rows.Any()) return;
 
-        ClipboardHandler.CopyToClipboard(rows);
-        FadingMessageBox.Show("Copied the table to clipboard", 0.8, 2000, 75, 0.05, this);
+        try
+        {
+            ClipboardHandler.CopyToClipboard(rows);
+            FadingMessageBox.Show("Copied the table to clipboard", 0.8, 2000, 75, 0.05, this);
+        }
+        catch
+        {
+            FadingMessageBox.Show("Failed to copy the table to clipboard", 0.8, 2000, 75, 0.05, this);
+        }
     } // private void CopyToClipboard (object?, EventArgs)
 
     private void PasteFromClipboard(object? sender, EventArgs e)
     {
         if (this._decays.Count == 0) return;
 
-        var rows = ClipboardHandler.GetRowsFromClipboard();
-        if (!rows.Any()) return;
-
-        this.cb_syncAlpha.Checked = this.cb_syncTauT.Checked = false;
-        foreach (var (name, parameters) in rows)
+        try
         {
-            try
+            var rows = ClipboardHandler.GetRowsFromClipboard();
+            if (!rows.Any()) return;
+
+            this.cb_syncAlpha.Checked = this.cb_syncTauT.Checked = false;
+            foreach (var (name, parameters) in rows)
             {
-                var tr = this._paramsTable[name];
-                tr.Parameters = parameters;
+                try
+                {
+                    var tr = this._paramsTable[name];
+                    tr.Parameters = parameters;
+                }
+                catch { /* row not found */ }
             }
-            catch { /* row not found */ }
+        }
+        catch
+        {
+            FadingMessageBox.Show("Failed to paste the table from clipboard", 0.8, 2000, 75, 0.05, this);
         }
     } // private void PasteFromClipboard (object?, EventArgs)
 

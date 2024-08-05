@@ -79,6 +79,7 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
     /// <param name="timeScaling">The time scaling.</param>
     /// <param name="signalScaling">The signal scaling.</param>
     /// <returns>The decay data.</returns>
+    /// <exception cref="IOException">Failed to read the file.</exception>
     internal static Decay FromFile(string filename, double timeScaling = 1.0, double signalScaling = 1.0)
     {
         try
@@ -137,6 +138,8 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
     /// Estimates the parameters.
     /// </summary>
     /// <returns>The estimated parameters.</returns>
+    // The number of elements passed to LinearRegression cannot exceed Int32.MaxValue (`var lastHalf = this.times.Length >> 1`).
+    // ExceptionAdjustment: M:PowerT.Data.Decay.LinearRegression(System.Collections.Generic.IEnumerable{System.Double},System.Collections.Generic.IEnumerable{System.Double}) -T:System.OverflowException
     internal Parameters EstimateParams()
     {
         // TODO: Implement more 'nice' estimation (´･_･`)
@@ -157,6 +160,13 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         return new(a0, a, alpha, at, tauT);
     } // internal Parameters EstimateParams()
 
+    /// <summary>
+    /// Returns the linear regression of the specified values.
+    /// </summary>
+    /// <param name="x">The x values.</param>
+    /// <param name="y">The y values.</param>
+    /// <returns>The slope and the intercept of the linear regression.</returns>
+    /// <exception cref="OverflowException"><paramref name="x"/> contains too many elements.</exception>
     private static (double slope, double intercept) LinearRegression(IEnumerable<double> x, IEnumerable<double> y)
     {
         var n = x.Count();

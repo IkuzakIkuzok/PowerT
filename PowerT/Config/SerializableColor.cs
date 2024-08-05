@@ -19,6 +19,7 @@ public class SerializableColor
     /// <summary>
     /// Gets or sets the string representation of the color.
     /// </summary>
+    /// <exception cref="Exception"><c>value</c> is not a valid HTML color name.</exception>
     [XmlText]
     public string ColorString
     {

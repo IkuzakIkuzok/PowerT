@@ -21,6 +21,12 @@ internal static class ClipboardHandler
     /// <param name="toCsv">If set to <c>true</c>, copy as CSV.</param>
     /// <param name="toHtml">If set to <c>true</c>, copy as HTML table.</param>
     /// <exception cref="ArgumentException">At least one of the formats must be selected.</exception>
+    /// <exception cref="System.Runtime.InteropServices.ExternalException">An error occurred when accessing the Clipboard.
+    /// The exception details will include an <c>HResult</c> that identifies the specific error;
+    /// see <see cref="System.Runtime.InteropServices.ErrorWrapper.ErrorCode"/>.</exception>
+    /// <exception cref="OutOfMemoryException">The clipboard content is too large.</exception>
+    /// <exception cref="OverflowException">The <paramref name="rows"/> contains too many rows.</exception>
+    /// <exception cref="ThreadStateException">The current thread is not in single-threaded apartment (STA) mode.</exception>
     internal static void CopyToClipboard(IEnumerable<ParamsRow> rows, bool toText = true, bool toCsv = true, bool toHtml = true)
     {
         if (!(toText || toCsv || toHtml))
@@ -51,12 +57,25 @@ internal static class ClipboardHandler
         Clipboard.SetDataObject(data, true);
     } // internal static void CopyToClipboard (IEnumerable<ParamsRow>)
 
+    /// <summary>
+    /// Creates the CSV content.
+    /// </summary>
+    /// <param name="rows">The rows.</param>
+    /// <returns>The CSV content.</returns>
+    /// <exception cref="OutOfMemoryException">The CSV content is too large.</exception>
     private static string CreateCsvContent(IEnumerable<ParamsRow> rows)
     {
         var csv_rows = rows.Select(row => $"{row.Name}\t{row.A0:f2}\t{row.A:f2}\t{row.Alpha:f2}\t{row.AT:f2}\t{row.TauT:f2}");
         return CSV_HEADER + Environment.NewLine + string.Join(Environment.NewLine, csv_rows);
     } // private static string CreateCsvContent (IEnumerable<ParamsRow>)
 
+    /// <summary>
+    /// Creates the HTML content.
+    /// </summary>
+    /// <param name="rows">The rows.</param>
+    /// <returns>The HTML content.</returns>
+    /// <exception cref="OverflowException">The <paramref name="rows"/> contains too many rows.</exception>
+    /// <exception cref="OutOfMemoryException">The HTML content is too large.</exception>
     private static string CreateHtmlContent(IEnumerable<ParamsRow> rows)
     {
         var table_rows = rows.Select((row, i)
@@ -118,10 +137,20 @@ internal static class ClipboardHandler
 
     #region paste from
 
+    /// <summary>
+    /// Gets the rows from the clipboard.
+    /// </summary>
+    /// <returns>The names and parameters of the rows.</returns>
+    /// <exception cref="System.Runtime.InteropServices.ExternalException">An error occurred when accessing the Clipboard.
+    /// The exception details will include an <c>HResult</c> that identifies the specific error;
+    /// see <see cref="System.Runtime.InteropServices.ErrorWrapper.ErrorCode"/>.</exception>
+    /// <exception cref="ThreadStateException">The current thread is not in single-threaded apartment (STA) mode.</exception>
     internal static IEnumerable<(string Name, Parameters Parameters)> GetRowsFromClipboard()
     {
+#pragma warning disable Ex0105  // Exception handler does not work well in iterators.
         if (!Clipboard.ContainsData(DataFormats.CommaSeparatedValue)) yield break;
         if (Clipboard.GetData(DataFormats.CommaSeparatedValue) is not MemoryStream stream) yield break;
+#pragma warning restore
 
         var csv = stream.ToArray().ToText();
         var rows =
@@ -134,11 +163,11 @@ internal static class ClipboardHandler
             if (values.Length < 6) continue;  // Skip invalid row (e.g. empty line
             
             var name = values[0];
-            var a0 = double.Parse(values[1]);
-            var a = double.Parse(values[2]);
-            var alpha = double.Parse(values[3]);
-            var at = double.Parse(values[4]);
-            var taut = double.Parse(values[5]);
+            if (!double.TryParse(values[1], out var a0)) continue;
+            if (!double.TryParse(values[2], out var a)) continue;
+            if (!double.TryParse(values[3], out var alpha)) continue;
+            if (!double.TryParse(values[4], out var at)) continue;
+            if (!double.TryParse(values[5], out var taut)) continue;
             var parameters = new Parameters(a0, a, alpha, at, taut);
             yield return (name, parameters);
         }

@@ -55,6 +55,7 @@ internal class DataGridViewNumericBoxCell : DataGridViewTextBoxCell
 
     override public object DefaultNewRowValue => this.DefaultValue;
 
+    /// <inheritdoc/>
     override protected object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
     {
         if (value is double d)

@@ -180,6 +180,7 @@ internal sealed class ParamsTable : DataGridView
 
     #region mouse move
 
+    /// <inheritdoc/>
     override protected void OnMouseDown(MouseEventArgs e)
     {
         base.OnMouseDown(e);
@@ -301,8 +302,15 @@ internal sealed class ParamsTable : DataGridView
         {
             var eqn = row.Parameters.ToString();
             if (string.IsNullOrWhiteSpace(eqn)) return;
-            Clipboard.SetText(eqn);
-            FadingMessageBox.Show($"Copied to clipboard: \n{eqn}", 0.8, 1000, 75, 0.1);
+            try
+            {
+                Clipboard.SetText(eqn);
+                FadingMessageBox.Show($"Copied to clipboard: \n{eqn}", 0.8, 1000, 75, 0.1);
+            }
+            catch
+            {
+                FadingMessageBox.Show("Failed to copy to clipboard.", 0.8, 1000, 75, 0.1);
+            }
         }
         else
             base.OnCellContentClick(e);
@@ -345,8 +353,21 @@ internal sealed class ParamsTable : DataGridView
         RefreshEdit();
     } // private void ToggleShow (ParamsRow)
 
+    /// <summary>
+    /// Count the number of shown data.
+    /// </summary>
+    /// <returns>The number of shown data, or <see cref="int.MaxValue"/> if the count is too large.</returns>
     private int GetShownCount()
-        => this.ParamsRows.Count(r => r.Show);
+    {
+        try
+        {
+            return this.ParamsRows.Count(r => r.Show);
+        }
+        catch (OverflowException)
+        {
+            return int.MaxValue;
+        }
+    } // private int GetShownCount ()
 
     private void SetSameAlpha()
     {

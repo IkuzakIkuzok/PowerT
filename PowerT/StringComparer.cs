@@ -13,6 +13,8 @@ internal sealed partial class StringComparer : IComparer<string>
     private static readonly Regex re_textNum = NamePartsPattern();
 
     /// <inheritdoc/>
+    // Only use supported StringComparison values.
+    // ExceptionAdjustment: M:System.String.Compare(System.String,System.String,System.StringComparison) -T:System.NotSupportedException
     public int Compare(string? s1, string? s2)
     {
         if (s1 == s2) return 0;

@@ -80,7 +80,7 @@ internal class FadingMessageBox : Form
 
     )
     {
-        var form = new FadingMessageBox(parentControl ?? (FromHandle(Process.GetCurrentProcess().MainWindowHandle) as Form)!)
+        var form = new FadingMessageBox(parentControl ?? Program.MainWindow)
         {
             Opacity = initialOpacity,
         };

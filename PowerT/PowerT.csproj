@@ -43,4 +43,8 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="ExceptionAdjustments.txt" />
+  </ItemGroup>
+
 </Project>

@@ -38,6 +38,18 @@ internal static class Program
     /// </summary>
     internal static MainWindow MainWindow { get; } = new();
 
+    private static void SaveConfig()
+    {
+        try
+        {
+            Config.Save();
+        }
+        catch
+        {
+            FadingMessageBox.Show("Failed to save the app configuration.", 0.8, 1000, 75, 0.1);
+        }
+    }
+
     /// <summary>
     /// Gets or sets the gradient start color.
     /// </summary>
@@ -47,7 +59,7 @@ internal static class Program
         set
         {
             Config.AppearanceConfig.ColorGradientConfig.StartColor = value;
-            Config.Save();
+            SaveConfig();
             GradientChanged?.Invoke(null, EventArgs.Empty);
         }
     }
@@ -61,7 +73,7 @@ internal static class Program
         set
         {
             Config.AppearanceConfig.ColorGradientConfig.EndColor = value;
-            Config.Save();
+            SaveConfig();
             GradientChanged?.Invoke(null, EventArgs.Empty);
         }
     }
@@ -75,7 +87,7 @@ internal static class Program
         set
         {
             Config.AppearanceConfig.FittedWidth = value;
-            Config.Save();
+            SaveConfig();
         }
     }
 
@@ -88,7 +100,7 @@ internal static class Program
         set
         {
             Config.AppearanceConfig.AxisLabelFont.Font = value;
-            Config.Save();
+            SaveConfig();
             AxisLabelFontChanged?.Invoke(null, EventArgs.Empty);
         }
     }
@@ -102,7 +114,7 @@ internal static class Program
         set
         {
             Config.AppearanceConfig.AxisTitleFont.Font = value;
-            Config.Save();
+            SaveConfig();
             AxisTitleFontChanged?.Invoke(null, EventArgs.Empty);
         }
     }
@@ -116,7 +128,7 @@ internal static class Program
         set
         {
             Config.AppearanceConfig.GuideLineColor = value;
-            Config.Save();
+            SaveConfig();
         }
     }
 
@@ -129,7 +141,7 @@ internal static class Program
         set
         {
             Config.DecayLoadingConfig.AMinusBSignalFormat = value;
-            Config.Save();
+            SaveConfig();
         }
     }
 
@@ -142,7 +154,7 @@ internal static class Program
         set
         {
             Config.DecayLoadingConfig.BSignalFormat = value;
-            Config.Save();
+            SaveConfig();
         }
     }
 

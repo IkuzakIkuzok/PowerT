@@ -21,12 +21,23 @@ internal static partial class UIUtils
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>String representation of the value in exponential notation.</returns>
+    // Constant formant is used and no exception is thrown with this format.
+    // ExceptionAdjustment: M:System.Decimal.ToString(System.String) -T:System.FormatException
     internal static string ExpFormatter(decimal value)
     {
         var s = value.ToString("E2");
 
-        var match = re_expFormat().Match(s);
-        if (!match.Success) return s;
+        Match? match;
+        try
+        {
+            match = re_expFormat().Match(s);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return s;
+        }
+
+        if (!(match?.Success ?? false)) return s;
 
         var mantissa = match.Groups["mantissa"].Value;
         var exponent = match.Groups["exponent"].Value;

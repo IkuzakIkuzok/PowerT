@@ -63,8 +63,15 @@ internal static partial class FileNameHandler
                             var kv = replace[2..].Split('/');
 
                             var timeout = TimeSpan.FromMilliseconds(RegexTimeoutMilliseconds);
-                            var re = new Regex(kv[0], RegexOptions.None, timeout);
-                            s_basename = re.Replace(s_basename, kv[1]);
+                            try
+                            {
+                                var re = new Regex(kv[0], RegexOptions.None, timeout);
+                                s_basename = re.Replace(s_basename, kv[1]);
+                            }
+                            catch (RegexMatchTimeoutException)
+                            {
+                                s_basename = s_basename.Replace(kv[0], kv[1]);
+                            }
                         }
                         else
                         {

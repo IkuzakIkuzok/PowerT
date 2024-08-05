@@ -5,6 +5,25 @@ using System.Text.RegularExpressions;
 
 namespace PowerT.Controls.Concatenator;
 
+/*
+ * Gets filename based on the parent directory name and the format.
+ *
+ * The format can contain the following patterns:
+ *   - <BASENAME>: The parent directory name.
+ *   - <BASENAME|...>: The parent directory name with replacements.
+ * 
+ * Replacement format:
+ *   - <pattern>/<replacement>: Replace the matched pattern with the replacement.
+ *   - r:<pattern>/<replacement>: Replace the matched pattern with the replacement using regular expression.
+ * 
+ * Example:
+ *   Format: "<BASENAME|ms/000us|r:[um]s/>"
+ *   Basename: "1ms"
+ *   Output: "1000"
+ *   Note that the replacement patters can be chained and applied in order.
+ *   <replacement> can be an empty string.
+ */
+
 /// <summary>
 /// Handles the filename of data files.
 /// </summary>

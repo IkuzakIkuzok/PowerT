@@ -10,6 +10,11 @@ namespace PowerT.Controls.Concatenator;
 /// </summary>
 internal static partial class FileNameHandler
 {
+    /// <summary>
+    /// Gets or sets the timeout for regular expression.
+    /// </summary>
+    internal static int RegexTimeoutMilliseconds { get; set; } = 500;
+
     private static readonly Regex re_basename= BasenamePattern();
 
     /// <summary>
@@ -34,8 +39,19 @@ internal static partial class FileNameHandler
                     var replaces = pattern[10..^1].Split('|');
                     foreach (var replace in replaces)
                     {
-                        var kv = replace.Split('=');
-                        s_basename = s_basename.Replace(kv[0], kv[1]);
+                        if (replace.StartsWith("r:"))
+                        {
+                            var kv = replace[2..].Split('/');
+
+                            var timeout = TimeSpan.FromMilliseconds(RegexTimeoutMilliseconds);
+                            var re = new Regex(kv[0], RegexOptions.None, timeout);
+                            s_basename = re.Replace(s_basename, kv[1]);
+                        }
+                        else
+                        {
+                            var kv = replace.Split('/');
+                            s_basename = s_basename.Replace(kv[0], kv[1]);
+                        }
                     }
                 }
 
@@ -50,6 +66,6 @@ internal static partial class FileNameHandler
         }
     } // internal static string GetFileName (string, string)
 
-    [GeneratedRegex(@"<BASENAME(\|[^|=]+=[^|=]*)*>", RegexOptions.Compiled)]
+    [GeneratedRegex(@"<BASENAME(\|[^|/]+/[^|/]*)*>", RegexOptions.Compiled)]
     private static partial Regex BasenamePattern();
 } // internal static class FileNameHandler

@@ -62,7 +62,7 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
     /// </summary>
     /// <param name="times">The times.</param>
     /// <param name="signals">The signals.</param>
-    /// <exception cref="ArgumentException">times and signals must have the same length.</exception></exception>
+    /// <exception cref="ArgumentException">times and signals must have the same length.</exception>
     internal Decay(double[] times, double[] signals)
     {
         if (times.Length != signals.Length)

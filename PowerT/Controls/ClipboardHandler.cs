@@ -13,19 +13,41 @@ internal static class ClipboardHandler
 
     private const string CSV_HEADER = "Name\tA0\tA\tα\tAT\tτt";
 
-    internal static void CopyToClipboard(IEnumerable<ParamsRow> rows)
+    /// <summary>
+    /// Copies the rows to the clipboard.
+    /// </summary>
+    /// <param name="rows">The rows.</param>
+    /// <param name="toText">If set to <c>true</c>, copy as plain text.</param>
+    /// <param name="toCsv">If set to <c>true</c>, copy as CSV.</param>
+    /// <param name="toHtml">If set to <c>true</c>, copy as HTML table.</param>
+    /// <exception cref="ArgumentException">At least one of the formats must be selected.</exception>
+    internal static void CopyToClipboard(IEnumerable<ParamsRow> rows, bool toText = true, bool toCsv = true, bool toHtml = true)
     {
+        if (!(toText || toCsv || toHtml))
+        {
+            throw new ArgumentException("At least one of the formats must be selected.");
+        }
+
         var data = new DataObject();
-        
+
         var text = CreateCsvContent(rows);
-        data.SetData(DataFormats.Text, text);
+        if (toText)
+        {
+            data.SetData(DataFormats.Text, text);
+        }
 
-        using var csv = new MemoryStream(text.ToBytes());
-        data.SetData(DataFormats.CommaSeparatedValue, csv);
+        if (toCsv)
+        {
+            using var csv = new MemoryStream(text.ToBytes());
+            data.SetData(DataFormats.CommaSeparatedValue, csv);
+        }
 
-        using var html = new MemoryStream(CreateHtmlContent(rows).ToBytes());
-        data.SetData(DataFormats.Html, html);
-
+        if (toHtml)
+        {
+            using var html = new MemoryStream(CreateHtmlContent(rows).ToBytes());
+            data.SetData(DataFormats.Html, html);
+        }
+        
         Clipboard.SetDataObject(data, true);
     } // internal static void CopyToClipboard (IEnumerable<ParamsRow>)
 

@@ -20,13 +20,7 @@ internal static class PaintHandlerBuilder
             }
         };
 
-    private static readonly DataGridViewPaintParts PaintPartsNoText
-        = DataGridViewPaintParts.Background
-        | DataGridViewPaintParts.Border
-        | DataGridViewPaintParts.ContentBackground
-        | DataGridViewPaintParts.ErrorIcon
-        | DataGridViewPaintParts.Focus
-        | DataGridViewPaintParts.SelectionBackground;
+    private static readonly DataGridViewPaintParts PaintPartsNoText = DataGridViewPaintParts.All & ~DataGridViewPaintParts.ContentForeground;
 
     internal static DataGridViewCellPaintingEventHandler CreateCellHandler(int row, int col, params Chunk[] chunks)
         => (sender, e) =>
@@ -44,8 +38,9 @@ internal static class PaintHandlerBuilder
                 var size = chunk.Size <= 0 ? dgv.Font.Size : chunk.Size;
                 x_offset += chunk.XOffset;
                 var y_offset = e.CellBounds.Y + chunk.YOffset;
-                g.DrawString(chunk.Text, new Font(dgv.Font.FontFamily, size), Brushes.Black, x_offset, y_offset);
-                x_offset += (int)g.MeasureString(chunk.Text, new Font(dgv.Font.FontFamily, size)).Width;
+                using var font = new Font(dgv.Font.FontFamily, size);
+                g.DrawString(chunk.Text, font, Brushes.Black, x_offset, y_offset);
+                x_offset += (int)g.MeasureString(chunk.Text, font).Width;
             }
             e.Handled = true;
         };

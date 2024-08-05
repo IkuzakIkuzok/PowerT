@@ -1,0 +1,2 @@
+﻿# All arrays are one-dimensional and their length cannot be larger than Int32.MaxValue.
+P:System.Array.Length -T:System.OverflowException

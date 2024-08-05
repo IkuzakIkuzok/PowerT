@@ -7,10 +7,19 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls;
 
-[DesignerCategory("Code")]
+/// <summary>
+/// Represents a parameters table.
+/// </summary>
+[DesignerCategory("Code")]                      
 internal sealed class ParamsTable : DataGridView
 {
+    private static readonly StringComparer _comparer = new();
+
     private bool _syncAlpha, _syncTauT;
+    private Rectangle _mouseDown;
+    private int _mouseFrom, _mouseTo;
+
+    internal event EventHandler? RowMoved;
 
     /// <summary>
     /// Gets a collection of the rows as <see cref="ParamsRow"/>.
@@ -61,8 +70,10 @@ internal sealed class ParamsTable : DataGridView
     internal ParamsTable()
     {
         this.AllowUserToAddRows = false;
+        this.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
         this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         this.EnableHeadersVisualStyles = false;
+        this.AllowDrop = true;
 
         var col_show = new DataGridViewCheckBoxColumn()
         {
@@ -150,6 +161,81 @@ internal sealed class ParamsTable : DataGridView
         this.Columns.Add(col_copy);  // 7
     } // ctor ()
 
+    override protected void OnSortCompare(DataGridViewSortCompareEventArgs e)
+    {
+        e.Handled = true;
+
+        if (e.Column.Index == 1) // Name
+        {
+            e.SortResult = _comparer.Compare(e.CellValue1?.ToString(), e.CellValue2?.ToString());
+        }
+        else if (e.Column.Index is >= 2 and <= 6) // Params
+        {
+            if (e.CellValue1 is not double d1 || e.CellValue2 is not double d2) return;
+            e.SortResult = d1.CompareTo(d2);
+        }
+
+        base.OnSortCompare(e);
+    } // override protected void OnSortCompare (DataGridViewSortCompareEventArgs)
+
+    #region mouse move
+
+    /// <inheritdoc/>
+    override protected void OnMouseDown(MouseEventArgs e)
+    {
+        base.OnMouseDown(e);
+
+        this._mouseFrom = HitTest(e.X, e.Y).RowIndex;
+        if (this._mouseFrom > -1)
+        {
+            var dragSize = SystemInformation.DragSize;
+            this._mouseDown = new Rectangle(new Point(e.X - dragSize.Width / 2, e.Y - dragSize.Height / 2), dragSize);
+        }
+        else
+        {
+            this._mouseDown = Rectangle.Empty;
+        }
+    } // override protected void OnMouseDown (MouseEventArgs)
+
+    override protected void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+
+        if (e.Button != MouseButtons.Left) return;
+        if (this._mouseDown.IsEmpty) return;
+        if (this._mouseDown.Contains(e.Location)) return;
+        DoDragDrop(this._mouseFrom, DragDropEffects.Move);
+    } // override protected void OnMouseMove (MouseEventArgs)
+
+    override protected void OnDragOver(DragEventArgs drgevent)
+    {
+        base.OnDragOver(drgevent);
+        drgevent.Effect = DragDropEffects.Move;
+    } // override protected void OnDragOver (DragEventArgs)
+
+    override protected void OnDragDrop(DragEventArgs drgevent)
+    {
+        base.OnDragDrop(drgevent);
+
+        var clientPoint = PointToClient(new(drgevent.X, drgevent.Y));
+        this._mouseTo = HitTest(clientPoint.X, clientPoint.Y).RowIndex;
+        if (drgevent.Effect != DragDropEffects.Move || this._mouseTo < 0) return;
+
+        // swap rows
+        var from = this._mouseFrom;
+        var to = this._mouseTo;
+        var row = this[from];
+        this.Rows.RemoveAt(from);
+        this.Rows.Insert(to, row);
+
+        OnRowMoved(EventArgs.Empty);
+    } // override protected void OnDragDrop (DragEventArgs)
+
+    private void OnRowMoved(EventArgs e)
+        => RowMoved?.Invoke(this, e);
+
+    #endregion mouse move
+
     override protected void OnCellValueChanged(DataGridViewCellEventArgs e)
     {
         if (e.ColumnIndex < 0 || e.RowIndex < 0)
@@ -201,10 +287,11 @@ internal sealed class ParamsTable : DataGridView
         base.OnCellValueChanged(e);
     } // override protected void OnCellValueChanged (DataGridViewCellEventArgs)
 
+    #region cell click
+
     override protected void OnCellContentClick(DataGridViewCellEventArgs e)
     {
-        if (e.ColumnIndex < 0 || e.RowIndex < 0)
-            return;
+        if (e.ColumnIndex < 0 || e.RowIndex < 0) return;
 
         var row = this[e.RowIndex];
         if (e.ColumnIndex == 0) // Show
@@ -215,7 +302,15 @@ internal sealed class ParamsTable : DataGridView
         {
             var eqn = row.Parameters.ToString();
             if (string.IsNullOrWhiteSpace(eqn)) return;
-            Clipboard.SetText(eqn);
+            try
+            {
+                Clipboard.SetText(eqn);
+                FadingMessageBox.Show($"Copied to clipboard: \n{eqn}", 0.8, 1000, 75, 0.1);
+            }
+            catch
+            {
+                FadingMessageBox.Show("Failed to copy to clipboard.", 0.8, 1000, 75, 0.1);
+            }
         }
         else
             base.OnCellContentClick(e);
@@ -246,6 +341,9 @@ internal sealed class ParamsTable : DataGridView
         base.OnCellContentDoubleClick(e);
     } // override protected void OnCellContentDoubleClick (DataGridViewCellEventArgs)
 
+    #endregion cell click
+
+
     private void ToggleShow(ParamsRow row)
     {
         if (!row.Show)
@@ -255,8 +353,21 @@ internal sealed class ParamsTable : DataGridView
         RefreshEdit();
     } // private void ToggleShow (ParamsRow)
 
+    /// <summary>
+    /// Count the number of shown data.
+    /// </summary>
+    /// <returns>The number of shown data, or <see cref="int.MaxValue"/> if the count is too large.</returns>
     private int GetShownCount()
-        => this.ParamsRows.Count(r => r.Show);
+    {
+        try
+        {
+            return this.ParamsRows.Count(r => r.Show);
+        }
+        catch (OverflowException)
+        {
+            return int.MaxValue;
+        }
+    } // private int GetShownCount ()
 
     private void SetSameAlpha()
     {

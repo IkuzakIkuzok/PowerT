@@ -5,20 +5,26 @@ using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
 
 namespace PowerT.Controls;
 
+/// <summary>
+/// Represents a color gradient picker.
+/// </summary>
 [DesignerCategory("Code")]
 internal class ColorGradientPicker : Form
 {
     protected readonly ColorGradient colorGradient;
-    private (Color, Color) returnColors;
+    private (Color Start, Color End) returnColors;
 
-    protected readonly Button start;
-
-    protected readonly Button end;
+    protected readonly ColorButton start, end;
 
     protected readonly Label lb_gradient;
 
     private readonly Button ok, cancel;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ColorGradientPicker"/> class.
+    /// </summary>
+    /// <param name="startColor">The default start color.</param>
+    /// <param name="endColor">The default end color.</param>
     internal ColorGradientPicker(Color startColor, Color endColor)
     {
         this.Text = "Color gradient";
@@ -87,11 +93,15 @@ internal class ColorGradientPicker : Form
 
     internal ColorGradientPicker() : this(Color.Red, Color.Blue) { }
 
-    new internal (Color, Color) ShowDialog()
+    /// <summary>
+    /// Shows the dialog.
+    /// </summary>
+    /// <returns>The selected start and end colors.</returns>
+    new internal (Color Start, Color End) ShowDialog()
     {
         base.ShowDialog();
         return this.returnColors;
-    } // new internal (Color, Color) ShowDialog ()
+    } // new internal (Color Start, Color End) ShowDialog ()
 
     private static Color SelectColor(Color color)
     {
@@ -116,25 +126,8 @@ internal class ColorGradientPicker : Form
 
     protected virtual void SetColor()
     {
-        void SetButtonColor(Button button, Color color)
-        {
-            button.BackColor = color;
-            button.ForeColor = CalcInvertColor(color);
-            button.Text = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-        } // void SetButtonColor (Button, Color)
-
-        SetButtonColor(this.start, this.colorGradient.StartColor);
-        SetButtonColor(this.end, this.colorGradient.EndColor);
+        this.start.Color = this.colorGradient.StartColor;
+        this.end.Color = this.colorGradient.EndColor;
         this.colorGradient.FillRectangle(this.lb_gradient, LinearGradientMode.Horizontal);
     } // protected virtual void SetColor ()
-
-    protected virtual Color CalcInvertColor(Color color)
-    {
-        var r = color.R;
-        var g = color.G;
-        var b = color.B;
-        var m = 255;
-        return Color.FromArgb(color.A, m - r, m - g, m - b);
-    } // protected virtual Color CalcInvertColor (Color)
 } // internal class ColorGradientPicker
-

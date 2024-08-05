@@ -5,6 +5,9 @@ using System.Xml.Serialization;
 
 namespace PowerT.Config;
 
+/// <summary>
+/// Represents the font configuration.
+/// </summary>
 [Serializable]
 public sealed class FontConfig
 {
@@ -31,6 +34,9 @@ public sealed class FontConfig
     /// </summary>
     public GraphicsUnit Unit { get; set; } = GraphicsUnit.Point;
 
+    /// <summary>
+    /// Gets or sets the font.
+    /// </summary>
     [XmlIgnore]
     public Font Font
     {
@@ -44,8 +50,16 @@ public sealed class FontConfig
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FontConfig"/> class.
+    /// </summary>
     public FontConfig() { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FontConfig"/> class
+    /// with the specified font.
+    /// </summary>
+    /// <param name="font">The font.</param>
     public FontConfig(Font font)
     {
         this.Font = font;

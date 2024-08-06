@@ -18,10 +18,10 @@ public sealed class AppearanceConfig
     public ColorGradientConfig ColorGradientConfig { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the line width of the fitted lines.
+    /// Gets or sets the line width of the fit lines.
     /// </summary>
-    [XmlElement("fitted-width")]
-    public int FittedWidth { get; set; } = 3;
+    [XmlElement("fit-width")]
+    public int FitWidth { get; set; } = 3;
 
     /// <summary>
     /// Gets or sets the font of the axis labels.

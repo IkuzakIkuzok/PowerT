@@ -18,12 +18,12 @@ internal sealed class MainWindow : Form
     private readonly ParamsTable _paramsTable;
     private readonly CheckBox cb_syncAlpha, cb_syncTauT;
     private readonly LogarithmicNumericUpDown nud_timeFrom, nud_timeTo, nud_signalFrom, nud_signalTo;
-    private readonly ToolStripMenuItem m_showObserved, m_showFitted;
+    private readonly ToolStripMenuItem m_showObserved, m_showFit;
     private readonly ToolStripMenuItem m_savePlot, m_clearBeforeLoad;
 
     private readonly List<(string, Decay)> _decays = [];
 
-    private ChartDashStyle fitted_style = ChartDashStyle.Solid;
+    private ChartDashStyle fit_style = ChartDashStyle.Solid;
 
     internal MainWindow()
     {
@@ -328,19 +328,19 @@ internal sealed class MainWindow : Form
         m_colorGradient.Click += SelectColorGradient;
         m_view.DropDownItems.Add(m_colorGradient);
 
-        var m_fitted = new ToolStripMenuItem()
+        var m_fit = new ToolStripMenuItem()
         {
-            Text = "&Fitted Curves"
+            Text = "&Fit Curves"
         };
-        m_view.DropDownItems.Add(m_fitted);
+        m_view.DropDownItems.Add(m_fit);
 
-        #region fitted.width
+        #region fit.width
 
-        var m_fitted_width = new ToolStripMenuItem()
+        var m_fit_width = new ToolStripMenuItem()
         {
             Text = "&Width"
         };
-        m_fitted.DropDownItems.Add(m_fitted_width);
+        m_fit.DropDownItems.Add(m_fit_width);
 
         int[] widths = [1, 2, 3, 4, 6, 8, 10];
         foreach (var w in widths)
@@ -352,31 +352,31 @@ internal sealed class MainWindow : Form
             };
             item.Click += (sender, e) =>
             {
-                Program.FittedWidth = w;
+                Program.FitWidth = w;
                 foreach (var row in this._paramsTable.ParamsRows)
                 {
-                    var s = row.FittedSeries;
+                    var s = row.FitSeries;
                     if (s is null) continue;
                     s.BorderWidth = w;
                 }
             };
-            m_fitted_width.DropDownItems.Add(item);
+            m_fit_width.DropDownItems.Add(item);
         }
-        m_fitted_width.DropDownOpening += (sender, e) =>
+        m_fit_width.DropDownOpening += (sender, e) =>
         {
-            foreach (ToolStripMenuItem item in m_fitted_width.DropDownItems)
-                item.Checked = (int)item.Tag! == Program.FittedWidth;
+            foreach (ToolStripMenuItem item in m_fit_width.DropDownItems)
+                item.Checked = (int)item.Tag! == Program.FitWidth;
         };
 
-        #endregion fitted.width
+        #endregion fit.width
 
-        #region fitted.style
+        #region fit.style
 
-        var m_fitted_style = new ToolStripMenuItem()
+        var m_fit_style = new ToolStripMenuItem()
         {
             Text = "&Style"
         };
-        m_fitted.DropDownItems.Add(m_fitted_style);
+        m_fit.DropDownItems.Add(m_fit_style);
 
         var styles = new[] { ChartDashStyle.Solid, ChartDashStyle.Dash, ChartDashStyle.Dot, ChartDashStyle.DashDot, ChartDashStyle.DashDotDot };
         foreach (var style in styles)
@@ -388,23 +388,23 @@ internal sealed class MainWindow : Form
             };
             item.Click += (sender, e) =>
             {
-                this.fitted_style = style;
+                this.fit_style = style;
                 foreach (var row in this._paramsTable.ParamsRows)
                 {
-                    var s = row.FittedSeries;
+                    var s = row.FitSeries;
                     if (s is null) continue;
                     s.BorderDashStyle = style;
                 }
             };
-            m_fitted_style.DropDownItems.Add(item);
+            m_fit_style.DropDownItems.Add(item);
         }
-        m_fitted_style.DropDownOpening += (sender, e) =>
+        m_fit_style.DropDownOpening += (sender, e) =>
         {
-            foreach (ToolStripMenuItem item in m_fitted_style.DropDownItems)
-                item.Checked = (ChartDashStyle)item.Tag! == this.fitted_style;
+            foreach (ToolStripMenuItem item in m_fit_style.DropDownItems)
+                item.Checked = (ChartDashStyle)item.Tag! == this.fit_style;
         };
 
-        #endregion fitted.style
+        #endregion fit.style
 
         var m_font = new ToolStripMenuItem()
         {
@@ -445,14 +445,14 @@ internal sealed class MainWindow : Form
         this.m_showObserved.Click += ToggleOberserved;
         m_data.DropDownItems.Add(this.m_showObserved);
 
-        this.m_showFitted = new()
+        this.m_showFit = new()
         {
-            Text = "&Fitted",
+            Text = "&Fit",
             Checked = true,
             ShortcutKeys = Keys.Control | Keys.F,
         };
-        this.m_showFitted.Click += ToggleFitted;
-        m_data.DropDownItems.Add(this.m_showFitted);
+        this.m_showFit.Click += ToggleFit;
+        m_data.DropDownItems.Add(this.m_showFit);
 
         m_data.DropDownItems.Add(new ToolStripSeparator());
 
@@ -549,11 +549,11 @@ internal sealed class MainWindow : Form
                     ChartType = SeriesChartType.FastPoint,
                     Color = color,
                 };
-                var fitted = new Series($"{name} (fitted)")
+                var fit = new Series($"{name} (fit)")
                 {
                     ChartType = SeriesChartType.FastLine,
-                    BorderWidth = Program.FittedWidth,
-                    BorderDashStyle = this.fitted_style,
+                    BorderWidth = Program.FitWidth,
+                    BorderDashStyle = this.fit_style,
                     Color = color,
                 };
 
@@ -562,11 +562,11 @@ internal sealed class MainWindow : Form
                 foreach (var (time, signal) in decay)
                 {
                     observed.Points.AddXY(time, signal);
-                    fitted.Points.AddXY(time, f(time));
+                    fit.Points.AddXY(time, f(time));
                 }
                 this._chart.Series.Add(observed);
-                this._chart.Series.Add(fitted);
-                var row = this._paramsTable.Add(name, decay, parameters, observed, fitted);
+                this._chart.Series.Add(fit);
+                var row = this._paramsTable.Add(name, decay, parameters, observed, fit);
                 row.Color = color;
             }
         }
@@ -605,7 +605,7 @@ internal sealed class MainWindow : Form
             var color = gradient[i];
             row.Color = color;
             row.ObservedSeries.Color = color;
-            row.FittedSeries.Color = color;
+            row.FitSeries.Color = color;
         }
     } // private void SelectColorGradient (object?, EventArgs)
 
@@ -647,7 +647,7 @@ internal sealed class MainWindow : Form
     {
         this.m_showObserved.Checked = !this.m_showObserved.Checked;
         var showObserved = this.m_showObserved.Checked;
-        if (!showObserved && !this.m_showFitted.Checked)
+        if (!showObserved && !this.m_showFit.Checked)
         {
             this.m_showObserved.Checked = true;
             return;
@@ -661,21 +661,21 @@ internal sealed class MainWindow : Form
         }
     } // private void ToggleOberserved (object?, EventArgs)
 
-    private void ToggleFitted(object? sender, EventArgs e)
+    private void ToggleFit(object? sender, EventArgs e)
     {
-        this.m_showFitted.Checked = !this.m_showFitted.Checked;
-        var showFitted = this.m_showFitted.Checked;
-        if (!showFitted && !this.m_showObserved.Checked)
+        this.m_showFit.Checked = !this.m_showFit.Checked;
+        var showFit = this.m_showFit.Checked;
+        if (!showFit && !this.m_showObserved.Checked)
         {
-            this.m_showFitted.Checked = true;
+            this.m_showFit.Checked = true;
             return;
         }
 
         foreach (var row in this._paramsTable.ParamsRows)
         {
-            var s = row.FittedSeries;
+            var s = row.FitSeries;
             if (s is null) continue;
-            s.Enabled = showFitted;
+            s.Enabled = showFit;
         }
-    } // private void ToggleFitted (object?, EventArgs)
+    } // private void ToggleFit (object?, EventArgs)
 } // internal sealed class MainWindow : Form

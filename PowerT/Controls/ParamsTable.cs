@@ -160,9 +160,9 @@ internal sealed class ParamsTable : DataGridView
         if (e.ColumnIndex == 0) // Show
         {
             var series = row.ObservedSeries;
-            var fitted = row.FittedSeries;
+            var fit = row.FitSeries;
 
-            series.Enabled = fitted.Enabled = row.Show;
+            series.Enabled = fit.Enabled = row.Show;
         }
 
         if (e.ColumnIndex == 4 && this.SyncAlpha) // Alpha
@@ -189,12 +189,12 @@ internal sealed class ParamsTable : DataGridView
         if (e.ColumnIndex is >= 2 and <= 6) // Params
         {
             var observed = row.ObservedSeries;
-            var fitted = row.FittedSeries;
+            var fit = row.FitSeries;
 
-            fitted.Points.Clear();
+            fit.Points.Clear();
             var f = row.Parameters.GetFunction();
             foreach (var time in row.Decay.Times)
-                fitted.Points.AddXY(time, f(time));
+                fit.Points.AddXY(time, f(time));
             row.Cells[7].ToolTipText = row.Parameters.ToString();
         }
 
@@ -284,16 +284,16 @@ internal sealed class ParamsTable : DataGridView
     /// <param name="name">The name.</param>
     /// <param name="decay">The decay.</param>
     /// <param name="parameters">The parameters.</param>
-    /// <param name="fitted">The fitted series.</param>
+    /// <param name="fit">The fit series.</param>
     /// <param name="observed">The observed series.</param>
     /// <returns>The added row.</returns>
-    internal ParamsRow Add(string name, Decay decay, Parameters parameters, Series observed, Series fitted)
+    internal ParamsRow Add(string name, Decay decay, Parameters parameters, Series observed, Series fit)
     {
         var row = new ParamsRow() {
             Name = name,
             Decay = decay,
             ObservedSeries = observed,
-            FittedSeries = fitted
+            FitSeries = fit
         };
         var index = this.Rows.Add(row);
 

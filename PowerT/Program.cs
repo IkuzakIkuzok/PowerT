@@ -79,14 +79,14 @@ internal static class Program
     }
 
     /// <summary>
-    /// Gets or sets the line widdh of the fitted lines.
+    /// Gets or sets the line widdh of the fit lines.
     /// </summary>
-    internal static int FittedWidth
+    internal static int FitWidth
     {
-        get => Config.AppearanceConfig.FittedWidth;
+        get => Config.AppearanceConfig.FitWidth;
         set
         {
-            Config.AppearanceConfig.FittedWidth = value;
+            Config.AppearanceConfig.FitWidth = value;
             SaveConfig();
         }
     }

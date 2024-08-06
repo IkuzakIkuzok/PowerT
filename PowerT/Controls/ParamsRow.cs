@@ -36,9 +36,9 @@ internal class ParamsRow : DataGridViewRow
     internal required Series ObservedSeries { get; init; }
 
     /// <summary>
-    /// Gets or sets the series representing the fitted data.
+    /// Gets or sets the series representing the fit data.
     /// </summary>
-    internal required Series FittedSeries { get; init; }
+    internal required Series FitSeries { get; init; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to show data on the plot.

@@ -9,15 +9,19 @@ namespace PowerT.Controls;
 /// <summary>
 /// Represents a row in the parameters table.
 /// </summary>
-internal class ParamsRow : DataGridViewRow
+internal class ParamsRow : DataGridViewRow, IColor
 {
     /// <summary>
     /// Gets or sets the color of the row.
     /// </summary>
-    internal Color Color
+    public Color Color
     {
         get => this.HeaderCell.Style.BackColor;
-        set => this.HeaderCell.Style.BackColor = this.HeaderCell.Style.SelectionBackColor = value;
+        set
+        {
+            this.HeaderCell.Style.BackColor = this.HeaderCell.Style.SelectionBackColor = value;
+            this.ObservedSeries.Color = this.FitSeries.Color = value;
+        }
     }
 
     /// <summary>
@@ -112,4 +116,4 @@ internal class ParamsRow : DataGridViewRow
             this.TauT = value.TauT;
         }
     }
-} // internal class ParamsRow : DataGridViewRow
+} // internal class ParamsRow : DataGridViewRow, IColor

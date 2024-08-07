@@ -6,15 +6,19 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls.Concatenator;
 
-internal sealed class DecayDataRow : DataGridViewRow
+internal sealed class DecayDataRow : DataGridViewRow, IColor
 {
     /// <summary>
     /// Gets or sets the color of the row.
     /// </summary>
-    internal Color Color
+    public Color Color
     {
         get => this.HeaderCell.Style.BackColor;
-        set => this.HeaderCell.Style.BackColor = this.HeaderCell.Style.SelectionBackColor = value;
+        set
+        {
+            this.HeaderCell.Style.BackColor = this.HeaderCell.Style.SelectionBackColor = value;
+            this.Series.Color = value;
+        }
     }
 
     /// <summary>
@@ -89,4 +93,4 @@ internal sealed class DecayDataRow : DataGridViewRow
         this.TimeStart = decay.TimeMin;
         this.TimeEnd = decay.TimeMax;
     } // ctor (string, Decay)
-} // internal sealed class DecayDataRow : DataGridViewRow
+} // internal sealed class DecayDataRow : DataGridViewRow, IColor

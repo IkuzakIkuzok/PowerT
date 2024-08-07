@@ -394,12 +394,7 @@ internal sealed class ConcatenateForm : Form
         if (count == 0) return;
 
         var gradient = new ColorGradient(Program.GradientStart, Program.GradientEnd, count);
-        foreach ((var i, var row) in this._decaysTable.DecayDataRows.Enumerate())
-        {
-            var color = gradient[i];
-            row.Color = color;
-            row.Series.Color = color;
-        }
+        this._decaysTable.DecayDataRows.SetGradient(gradient);
     } // private void SetColor ()
 
     private void ToggleGuide(object? sender, EventArgs e)

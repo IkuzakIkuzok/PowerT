@@ -718,13 +718,7 @@ internal sealed partial class MainWindow : Form
         if (this._decays.Count == 0) return;
 
         var gradient = new ColorGradient(Program.GradientStart, Program.GradientEnd, this._decays.Count);
-        foreach ((var i, var row) in this._paramsTable.ParamsRows.Enumerate())
-        {
-            var color = gradient[i];
-            row.Color = color;
-            row.ObservedSeries.Color = color;
-            row.FitSeries.Color = color;
-        }
+        this._paramsTable.ParamsRows.SetGradient(gradient);
     } // private void SetColor ()
 
     private void SelectAxisLabelFont(object? sender, EventArgs e)

@@ -98,4 +98,18 @@ internal static partial class UIUtils
         foreach (var (time, signal) in decay)
             points.AddXY(time, signal);
     } // internal static void AddDecay (this DataPointCollection, Decay)
+
+    /// <summary>
+    /// Sets the color gradient to the specified items collection.
+    /// </summary>
+    /// <param name="target">The target items.</param>
+    /// <param name="gradient">The color gradient.</param>
+    internal static void SetGradient(this IEnumerable<IColor> target, ColorGradient gradient)
+    {
+        foreach ((var i, var item) in target.Enumerate())
+        {
+            var color = gradient[i];
+            item.Color = color;
+        }
+    } // internal static void SetGradient (this IEnumerable<IColor>, ColorGradient)
 } // internal static partial class UIUtils

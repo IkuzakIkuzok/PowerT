@@ -13,7 +13,6 @@ internal sealed class ConcatenateForm : Form
     private readonly Chart _chart;
     private readonly Axis axisX, axisY;
     private readonly DecayDataTable _decaysTable;
-    private readonly LogarithmicNumericUpDown nud_timeFrom, nud_timeTo, nud_signalFrom, nud_signalTo;
     private readonly Button btn_save;
 
     private readonly CheckBox cb_showGuide;
@@ -142,105 +141,11 @@ internal sealed class ConcatenateForm : Form
                 AddDecay(folder);
         };
 
-        #region display range
-
-        _ = new Label()
+        _ = new DisplayRangeSelector(this.axisX, this.axisY)
         {
-            Text = "Time (us): ",
             Location = new(10, 30),
-            Size = new(60, 20),
             Parent = this._decays_container.Panel2,
         };
-
-        _ = new Label()
-        {
-            Text = "From",
-            Location = new(70, 30),
-            Size = new(40, 20),
-            Parent = this._decays_container.Panel2,
-        };
-
-        this.nud_timeFrom = new()
-        {
-            Location = new(110, 28),
-            Size = new(60, 20),
-            DecimalPlaces = 2,
-            Minimum = 0.01M,
-            Maximum = 10M,
-            Value = (decimal)this.axisX.Minimum,
-            Parent = this._decays_container.Panel2,
-        };
-        this.nud_timeFrom.ValueChanged += (sender, e) => this.axisX.Minimum = (double)this.nud_timeFrom.Value;
-
-        _ = new Label()
-        {
-            Text = "To",
-            Location = new(180, 30),
-            Size = new(20, 20),
-            Parent = this._decays_container.Panel2,
-        };
-
-        this.nud_timeTo = new()
-        {
-            Location = new(200, 28),
-            Size = new(70, 20),
-            DecimalPlaces = 0,
-            Minimum = 50M,
-            Maximum = 100_000M,
-            Value = (decimal)this.axisX.Maximum,
-            Parent = this._decays_container.Panel2,
-        };
-        this.nud_timeTo.ValueChanged += (sender, e) => this.axisX.Maximum = (double)this.nud_timeTo.Value;
-
-        _ = new Label()
-        {
-            Text = "ΔuOD:",
-            Location = new(10, 60),
-            Size = new(60, 20),
-            Parent = this._decays_container.Panel2,
-        };
-
-        _ = new Label()
-        {
-            Text = "From",
-            Location = new(70, 60),
-            Size = new(40, 20),
-            Parent = this._decays_container.Panel2,
-        };
-
-        this.nud_signalFrom = new()
-        {
-            Location = new(110, 58),
-            Size = new(60, 20),
-            DecimalPlaces = 2,
-            Minimum = 0.001M,
-            Maximum = 1_000M,
-            Value = (decimal)this.axisY.Minimum,
-            Parent = this._decays_container.Panel2,
-        };
-        this.nud_signalFrom.ValueChanged += (sender, e) => this.axisY.Minimum = (double)this.nud_signalFrom.Value;
-
-        _ = new Label()
-        {
-            Text = "To",
-            Location = new(180, 60),
-            Size = new(20, 20),
-            Parent = this._decays_container.Panel2,
-        };
-
-        this.nud_signalTo = new()
-        {
-            Location = new(200, 58),
-            Size = new(70, 20),
-            DecimalPlaces = 0,
-            Minimum = 50M,
-            Maximum = 1_000_000M,
-            Value = (decimal)this.axisY.Maximum,
-            Parent = this._decays_container.Panel2,
-        };
-        this.nud_signalTo.ValueChanged += (sender, e) => this.axisY.Maximum = (double)this.nud_signalTo.Value;
-
-        #endregion display range
 
         #region guide
 

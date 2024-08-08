@@ -19,7 +19,6 @@ internal sealed partial class MainWindow : Form
     private readonly Axis axisX, axisY;
     private readonly ParamsTable _paramsTable;
     private readonly CheckBox cb_syncAlpha, cb_syncTauT;
-    private readonly LogarithmicNumericUpDown nud_timeFrom, nud_timeTo, nud_signalFrom, nud_signalTo;
     private readonly ToolStripMenuItem m_showObserved, m_showFit;
     private readonly ToolStripMenuItem m_savePlot, m_copy, m_paste, m_clearBeforeLoad;
 
@@ -187,109 +186,11 @@ internal sealed partial class MainWindow : Form
         );
         this.cb_syncTauT.CheckedChanged += (sender, e) => this._paramsTable.SyncTauT = this.cb_syncTauT.Checked;
 
-        #region display range
-
-        _ = new Label()
+        _ = new DisplayRangeSelector(this.axisX, this.axisY)
         {
-            Text = "Time (us):",
             Location = new(10, 60),
-            Size = new(60, 20),
             Parent = this._params_container.Panel2,
         };
-
-        _ = new Label()
-        {
-            Text = "From",
-            Location = new(70, 60),
-            Size = new(40, 20),
-            Parent = this._params_container.Panel2,
-        };
-
-        this.nud_timeFrom = new()
-        {
-            Location = new(110, 58),
-            Size = new(80, 20),
-            DecimalPlaces = 2,
-            Minimum = 0.001M,
-            Maximum = 1_000M,
-            Value = (decimal)this.axisX.Minimum,
-            Formatter = UIUtils.ExpFormatter,
-            Parent = this._params_container.Panel2,
-        };
-        this.nud_timeFrom.ValueChanged += (sender, e) => this.axisX.Minimum = (double)this.nud_timeFrom.Value;
-
-        _ = new Label()
-        {
-            Text = "To",
-            Location = new(200, 60),
-            Size = new(20, 20),
-            Parent = this._params_container.Panel2,
-        };
-
-        this.nud_timeTo = new()
-        {
-            Location = new(220, 58),
-            Size = new(80, 20),
-            DecimalPlaces = 0,
-            Minimum = 5M,
-            Maximum = 1_000_000M,
-            Value = (decimal)this.axisX.Maximum,
-            Formatter = UIUtils.ExpFormatter,
-            Parent = this._params_container.Panel2,
-        };
-        this.nud_timeTo.ValueChanged += (sender, e) => this.axisX.Maximum = (double)this.nud_timeTo.Value;
-
-        _ = new Label()
-        {
-            Text = "ΔuOD:",
-            Location = new(10, 90),
-            Size = new(60, 20),
-            Parent = this._params_container.Panel2,
-        };
-
-        _ = new Label()
-        {
-            Text = "From",
-            Location = new(70, 90),
-            Size = new(40, 20),
-            Parent = this._params_container.Panel2,
-        };
-
-        this.nud_signalFrom = new()
-        {
-            Location = new(110, 88),
-            Size = new(80, 20),
-            DecimalPlaces = 0,
-            Minimum = 0.001M,
-            Maximum = 1_000M,
-            Value = (decimal)this.axisY.Minimum,
-            Formatter = UIUtils.ExpFormatter,
-            Parent = this._params_container.Panel2,
-        };
-        this.nud_signalFrom.ValueChanged += (sender, e) => this.axisY.Minimum = (double)this.nud_signalFrom.Value;
-
-        _ = new Label()
-        {
-            Text = "To",
-            Location = new(200, 90),
-            Size = new(20, 20),
-            Parent = this._params_container.Panel2,
-        };
-
-        this.nud_signalTo = new()
-        {
-            Location = new(220, 88),
-            Size = new(80, 20),
-            DecimalPlaces = 0,
-            Minimum = 50M,
-            Maximum = 1_000_000M,
-            Value = (decimal)this.axisY.Maximum,
-            Formatter = UIUtils.ExpFormatter,
-            Parent = this._params_container.Panel2,
-        };
-        this.nud_signalTo.ValueChanged += (sender, e) => this.axisY.Maximum = (double)this.nud_signalTo.Value;
-
-        #endregion display range
 
         #region menu
 

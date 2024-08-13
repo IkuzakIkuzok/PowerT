@@ -1,6 +1,7 @@
 ﻿
 // (c) 2024 Kazuki Kohzuki
 
+using PowerT.Controls.Charting;
 using PowerT.Controls.Concatenator;
 using PowerT.Controls.Text;
 using PowerT.Data;
@@ -15,8 +16,9 @@ internal sealed partial class MainWindow : Form
 {
     private readonly TextBox tb_sources;
     private readonly SplitContainer _container, _params_container;
-    private readonly Chart _chart;
+    private readonly CustomChart _chart;
     private readonly Axis axisX, axisY;
+    private readonly DisplayRangeSelector displayRangeSelector;
     private readonly ParamsTable _paramsTable;
     private readonly CheckBox cb_syncAlpha, cb_syncTauT;
     private readonly ToolStripMenuItem m_showObserved, m_showFit;
@@ -94,6 +96,8 @@ internal sealed partial class MainWindow : Form
             BorderlineWidth = 2,
             BorderlineDashStyle = ChartDashStyle.Solid,
             SuppressExceptions = true,
+            MoveXBias = 2,
+            MoveYBias = 2,
             Parent = this._container.Panel1,
         };
 
@@ -186,11 +190,17 @@ internal sealed partial class MainWindow : Form
         );
         this.cb_syncTauT.CheckedChanged += (sender, e) => this._paramsTable.SyncTauT = this.cb_syncTauT.Checked;
 
-        _ = new DisplayRangeSelector(this.axisX, this.axisY)
+        this.displayRangeSelector = new(this.axisX, this.axisY)
         {
             Location = new(10, 60),
             Parent = this._params_container.Panel2,
         };
+        this._chart.AxisXMinimum = (double)this.displayRangeSelector.Time.FromMinimum;
+        this._chart.AxisXMaximum = (double)this.displayRangeSelector.Time.ToMaximum;
+        this._chart.AxisYMinimum = (double)this.displayRangeSelector.Signal.FromMinimum;
+        this._chart.AxisYMaximum = (double)this.displayRangeSelector.Signal.ToMaximum;
+        this._chart.AxisXRangeChanged += SetXRange;
+        this._chart.AxisYRangeChanged += SetYRange;
 
         #region menu
 
@@ -641,6 +651,38 @@ internal sealed partial class MainWindow : Form
         if (fd.ShowDialog() != DialogResult.OK) return;
         this.axisX.TitleFont = this.axisY.TitleFont = Program.AxisTitleFont = fd.Font;
     } // private void SelectAxisTitleFont (object?, EventArgs)
+
+    private void SetXRange(object? sender, AxisRangeChangedEventArgs e)
+    {
+        try
+        {
+            var min = (decimal)e.Minimum;
+            var max = (decimal)e.Maximum;
+            if (min > this.displayRangeSelector.Time.FromMaximum) min = this.displayRangeSelector.Time.FromMaximum;
+            if (max < this.displayRangeSelector.Time.ToMinimum) max = this.displayRangeSelector.Time.ToMinimum;
+            this.displayRangeSelector.TimeRange = ((double)min, (double)max);
+        }
+        catch
+        {
+            // ignore
+        }
+    } // private void SetXRange (object?, AxisRangeChangedEventArgs)
+
+    private void SetYRange(object? sender, AxisRangeChangedEventArgs e)
+    {
+        try
+        {
+            var min = (decimal)e.Minimum;
+            var max = (decimal)e.Maximum;
+            if (min > this.displayRangeSelector.Signal.FromMaximum) min = this.displayRangeSelector.Signal.FromMaximum;
+            if (max < this.displayRangeSelector.Signal.ToMinimum) max = this.displayRangeSelector.Signal.ToMinimum;
+            this.displayRangeSelector.SignalRange = ((double)min, (double)max);
+        }
+        catch
+        {
+            // ignore
+        }
+    } // private void SetYRange (object?, AxisRangeChangedEventArgs)
 
     private void SevePlot(object? sender, EventArgs e)
     {

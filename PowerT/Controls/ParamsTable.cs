@@ -151,6 +151,20 @@ internal sealed class ParamsTable : DataGridView
             new("T", 6, -3, 10)
         );
 
+        var col_tau0 = new DataGridViewNumericBoxColumn(0.3)
+        {
+            HeaderText = "τ0",
+            DataPropertyName = "tau0",
+            ReadOnly = true,
+            Width = 60,
+        };
+        this.Columns.Add(col_tau0);  // 7
+        CellPainting += PaintHandlerBuilder.CreateCellHandler(
+            -1, 7,
+            new("τ", 0, 3, 4),
+            new("0", 6, -3, 10)
+        );
+
         var col_copy = new DataGridViewButtonColumn()
         {
             HeaderText = "Copy",
@@ -158,7 +172,7 @@ internal sealed class ParamsTable : DataGridView
             UseColumnTextForButtonValue = true,
             Width = 60,
         };
-        this.Columns.Add(col_copy);  // 7
+        this.Columns.Add(col_copy);  // 8
     } // ctor ()
 
     override protected void OnSortCompare(DataGridViewSortCompareEventArgs e)
@@ -281,7 +295,13 @@ internal sealed class ParamsTable : DataGridView
             var f = row.Parameters.GetFunction();
             foreach (var time in row.Decay.Times)
                 fit.Points.AddXY(time, f(time));
-            row.Cells[7].ToolTipText = row.Parameters.ToString();
+            row.Cells[8].ToolTipText = row.Parameters.ToString();
+
+            var alphaA = row.Parameters.Alpha * row.Parameters.A;
+            if (alphaA > 0)
+            {
+                row.Cells[7].Value = Math.Round(1 / alphaA, 3);
+            }
         }
 
         base.OnCellValueChanged(e);
@@ -298,7 +318,7 @@ internal sealed class ParamsTable : DataGridView
         {
             ToggleShow(row);
         }
-        else if (e.ColumnIndex == 7) // Copy
+        else if (e.ColumnIndex == 8) // Copy
         {
             var eqn = row.Parameters.ToString();
             if (string.IsNullOrWhiteSpace(eqn)) return;
@@ -412,7 +432,7 @@ internal sealed class ParamsTable : DataGridView
         row.Cells[0].Value = true;
         row.Cells[1].Value = name;
         row.Parameters = parameters;
-        row.Cells[7].ToolTipText = parameters.ToString();
+        row.Cells[8].ToolTipText = parameters.ToString();
 
         RefreshEdit();
 

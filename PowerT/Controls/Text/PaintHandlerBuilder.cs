@@ -3,6 +3,11 @@
 
 namespace PowerT.Controls.Text;
 
+/*
+ * TextRenderer.DrawText uses GDI, whereas Graphics.DrawString uses GDI+.
+ * Quality of text rendering is better with GDI than GDI+.
+ */
+
 internal static class PaintHandlerBuilder
 {
     internal static PaintEventHandler Create(params Chunk[] chunks)
@@ -15,8 +20,12 @@ internal static class PaintHandlerBuilder
                 var size = chunk.Size <= 0 ? control.Font.Size : chunk.Size;
                 x_offset += chunk.XOffset;
                 var y_offset = chunk.YOffset;
-                e.Graphics.DrawString(chunk.Text, new Font(control.Font.FontFamily, size), Brushes.Black, x_offset, y_offset);
-                x_offset += (int)e.Graphics.MeasureString(chunk.Text, new Font(control.Font.FontFamily, size)).Width;
+                using var font = new Font(control.Font.FontFamily, size);
+                TextRenderer.DrawText(
+                    e.Graphics,
+                    chunk.Text, font, new Point(x_offset, y_offset), SystemColors.ControlText
+                );
+                x_offset += (int)e.Graphics.MeasureString(chunk.Text, font).Width;
             }
         };
 
@@ -39,7 +48,10 @@ internal static class PaintHandlerBuilder
                 x_offset += chunk.XOffset;
                 var y_offset = e.CellBounds.Y + chunk.YOffset;
                 using var font = new Font(dgv.Font.FontFamily, size);
-                g.DrawString(chunk.Text, font, Brushes.Black, x_offset, y_offset);
+                TextRenderer.DrawText(
+                    e.Graphics,
+                    chunk.Text, font, new Point(x_offset, y_offset), SystemColors.ControlText
+                );
                 x_offset += (int)g.MeasureString(chunk.Text, font).Width;
             }
             e.Handled = true;

@@ -13,7 +13,7 @@ namespace PowerT.Controls;
 [DesignerCategory("Code")]                      
 internal sealed class ParamsTable : DataGridView
 {
-    private static readonly StringComparer _comparer = new();
+    private static readonly StringComparer _comparer = StringComparer.Instance;
 
     private bool _syncAlpha, _syncTauT;
     private Rectangle _mouseDown;

@@ -9,7 +9,7 @@ namespace PowerT.Controls.Concatenator;
 [DesignerCategory("Code")]
 internal sealed class DecayDataTable : DataGridView
 {
-    private static readonly StringComparer _comparer = new();
+    private static readonly StringComparer _comparer = StringComparer.Instance;
 
     /// <summary>
     /// Gets the decay data rows.

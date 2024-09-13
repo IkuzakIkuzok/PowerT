@@ -141,9 +141,14 @@ internal sealed class ConcatenateForm : Form
         {
             if (!(e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false)) return;
             if (e.Data.GetData(DataFormats.FileDrop) is not string[] folders) return;
-            Array.Sort(folders, new StringComparer());
-            foreach (var folder in folders)
-                AddDecay(folder);
+            Array.Sort(folders, StringComparer.Instance);
+
+            // Adding decays should be done in a separate thread to avoid freezing the source (e.g., Windows Explorer).
+            Task.Run(() =>
+            {
+                foreach (var folder in folders)
+                    Invoke(() => AddDecay(folder));
+            });
         };
 
         this.displayRangeSelector = new(this.axisX, this.axisY)

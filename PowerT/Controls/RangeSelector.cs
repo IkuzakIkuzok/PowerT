@@ -30,8 +30,10 @@ internal class RangeSelector
         get => this.lb_main.Parent;
         set
         {
-            this.lb_main.Parent = this.lb_from.Parent = this.lb_to.Parent = value;
-            this.nud_from.Parent = this.nud_to.Parent = value;
+            // `from` control must be added to parent control before `to` control
+            // in order to set its tab index to be less than that of `to` control
+            this.lb_main.Parent = this.lb_to.Parent = this.lb_from.Parent = value;
+            this.nud_to.Parent = this.nud_from.Parent = value;
         }
     }
 

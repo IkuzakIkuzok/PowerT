@@ -28,7 +28,9 @@ internal class DisplayRangeSelector
     internal Control? Parent
     {
         get => this.time.Parent;
-        set => this.time.Parent = this.signal.Parent = value;
+        // time must be added to parent control before signal
+        // in order to set its tab index to be less than that of signal
+        set => this.signal.Parent = this.time.Parent = value;
     }
 
     /// <summary>

@@ -76,6 +76,7 @@ internal static class PluginManager
         foreach (var type in types)
         {
             if (type.IsInterface || type.IsAbstract) continue;
+            if (!typeof(IPlugin).IsAssignableFrom(type)) continue;
             try
             {
                 if (Activator.CreateInstance(type) is not IPlugin plugin) continue;

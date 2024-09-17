@@ -1,6 +1,7 @@
 ﻿
 // (c) 2024 Kazuki Kohzuki
 
+using PowerT.Plugin;
 using System.Collections;
 
 namespace PowerT.Data;
@@ -179,6 +180,9 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         var intercept = (Sxx * Sy - Sx * Sxy) / denom;
         return (slope, intercept);
     } // private static (double, double) LinearRegression (IEnumerable<double>, IEnumerable<double>)
+
+    internal Decay Smoothing(ISmoother smoother)
+        => new(this.times, smoother?.Smooth(this.signals).ToArray() ?? this.signals);
 
     #region operators
 

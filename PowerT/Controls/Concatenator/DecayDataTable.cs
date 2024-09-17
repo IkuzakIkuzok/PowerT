@@ -2,6 +2,7 @@
 // (c) 2024 Kazuki Kohzuki
 
 using PowerT.Data;
+using PowerT.Plugin;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls.Concatenator;
@@ -10,6 +11,8 @@ namespace PowerT.Controls.Concatenator;
 internal sealed class DecayDataTable : DataGridView
 {
     private static readonly StringComparer _comparer = StringComparer.Instance;
+
+    private ISmoother? _smoother;
 
     /// <summary>
     /// Gets the decay data rows.
@@ -41,6 +44,17 @@ internal sealed class DecayDataTable : DataGridView
                     return false;
             }
             return true;
+        }
+    }
+
+    internal ISmoother? Smoother
+    {
+        get => this._smoother;
+        set
+        {
+            if (this._smoother == value) return;
+            this._smoother = value;
+            UpdateSeries();
         }
     }
 
@@ -176,15 +190,29 @@ internal sealed class DecayDataTable : DataGridView
 
         if (e.ColumnIndex is >= 3 and <= 5)
         {
-            var series = row.Series;
-            var scaling = row.Scaling;
-
-            series.Points.Clear();
-            series.Points.AddDecay(row.Used * scaling);
+            UpdateSeries(row);
         }
 
         base.OnCellValueChanged(e);
     } // override protected void OnCellValueChanged (e)
+
+    internal void UpdateSeries()
+    {
+        foreach (var row in this.DecayDataRows)
+            UpdateSeries(row);
+    } // internal void UpdateSeries ()
+
+    private void UpdateSeries(DecayDataRow row)
+    {
+        var series = row.Series;
+        var scaling = row.Scaling;
+
+        series.Points.Clear();
+        var scaled = row.Used * scaling;
+        if (this.Smoother is not null)
+            scaled = scaled.Smoothing(this.Smoother);
+        series.Points.AddDecay(scaled);
+    } // private void UpdateSeries (row)
 
     /// <summary>
     /// Adds a decay data row.

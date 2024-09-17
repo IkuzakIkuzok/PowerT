@@ -2,8 +2,8 @@
 // (c) 2024 Kazuki Kohzuki
 
 using PowerT.Controls.Charting;
+using PowerT.Plugin;
 using PowerT.Properties;
-using System.Windows.Documents;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PowerT.Controls.Concatenator;
@@ -23,6 +23,9 @@ internal sealed class ConcatenateForm : Form
     private readonly CustomNumericUpDown nud_guideSlope;
     private readonly ColorButton btn_guideColor;
     private readonly Series series_guide;
+
+    private readonly SmootherSelector smootherSelector;
+    private readonly TextBox smootherOption;
 
     internal ConcatenateForm()
     {
@@ -104,7 +107,6 @@ internal sealed class ConcatenateForm : Form
         {
             Dock = DockStyle.Fill,
             Orientation = Orientation.Horizontal,
-            SplitterDistance = 300,
             SplitterWidth = 5,
             Panel1MinSize = 100,
             Panel2MinSize = 100,
@@ -239,10 +241,51 @@ internal sealed class ConcatenateForm : Form
 
         #endregion guide
 
+        _ = new Label()
+        {
+            Text = "Smoothing",
+            Location = new(10, 100),
+            Size = new(70, 20),
+            Parent = this._decays_container.Panel2,
+        };
+
+        this.smootherSelector = new()
+        {
+            Location = new(80, 98),
+            Width = 200,
+            Parent = this._decays_container.Panel2,
+        };
+        this.smootherSelector.SelectedIndexChanged += ChangeSmoother;
+
+        _ = new Label()
+        {
+            Text = "Option",
+            Location = new(10, 130),
+            Size = new(70, 20),
+            Parent = this._decays_container.Panel2,
+        };
+
+        this.smootherOption = new()
+        {
+            Location = new(80, 128),
+            Size = new(200, 20),
+            Parent = this._decays_container.Panel2,
+        };
+        this.smootherOption.Leave += UpdateSmootherOption;
+        this.smootherOption.KeyDown += (s, e) =>
+        {
+            if (e.KeyCode == Keys.Enter && e.Control)
+            {
+                UpdateSmootherOption();
+                e.Handled = true;
+            }
+        };
+        this.smootherSelector.SelectedIndex = 0;
+
         var add = new Button()
         {
             Text = "Add",
-            Location = new(10, 100),
+            Location = new(10, 180),
             Size = new(80, 40),
             Parent = this._decays_container.Panel2,
         };
@@ -251,7 +294,7 @@ internal sealed class ConcatenateForm : Form
         this.btn_save = new()
         {
             Text = "Save",
-            Location = new(120, 100),
+            Location = new(120, 180),
             Size = new(80, 40),
             Enabled = false,
             Parent = this._decays_container.Panel2,
@@ -261,7 +304,7 @@ internal sealed class ConcatenateForm : Form
         var clear = new Button()
         {
             Text = "Clear",
-            Location = new(230, 100),
+            Location = new(230, 180),
             Size = new(80, 40),
             Parent = this._decays_container.Panel2,
         };
@@ -270,6 +313,7 @@ internal sealed class ConcatenateForm : Form
         Program.GradientChanged += SetColor;
 
         this._main_container.SplitterDistance = 400;
+        this._decays_container.SplitterDistance = 300;
     } // ctor ()
 
     override protected void OnClosed(EventArgs e)
@@ -400,6 +444,32 @@ internal sealed class ConcatenateForm : Form
         this.btn_guideColor.Color = color;
         this.series_guide.Color = color;
     } // private void SetGuideColor ()
+
+    private void ChangeSmoother(object? sender, EventArgs e)
+    {
+        var smoother = this.smootherSelector.SelectedSmoother;
+        this._decaysTable.Smoother = smoother;
+        this.smootherOption.Enabled = smoother?.HasOption ?? false;
+        this.smootherOption.Text = smoother?.GetOption() ?? string.Empty;
+    } // private void ChangeSmoother (object?, EventArgs)
+
+    private void UpdateSmootherOption(object? sender, EventArgs e)
+        => UpdateSmootherOption();
+
+    private void UpdateSmootherOption()
+    {
+        if (this.smootherSelector.SelectedSmoother is not ISmoother smoother) return;
+        if (smoother.SetOption(this.smootherOption.Text))
+        {
+            this.smootherOption.BackColor = SystemColors.Window;
+            this._decaysTable.UpdateSeries();
+        }
+        else
+        {
+            MessageBox.Show("The option is invalid.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            this.smootherOption.BackColor = Color.LightPink;
+        }
+    } // private void UpdateSmootherOption ()
 
     private void SaveToFile(object? sender, EventArgs e)
         => SaveToFile();

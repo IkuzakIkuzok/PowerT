@@ -2,6 +2,7 @@
 // (c) 2024 Kazuki Kohzuki
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -82,22 +83,35 @@ internal static class PluginManager
 
             /*
              * Check if the type implements the IPlugin interface.
-             * This can be omitted because the type without the IPlugin interface will be rejected
-             * by `Activator.CreateInstance(type) is not IPlugin plugin`.
+             * This can be omitted because the type without the IPlugin interface will be rejected `TryGetInstance`.
              * However, `Activator.CreateInstance` is a heavy operation, so it is better to check it here.
              */
             if (!typeof(IPlugin).IsAssignableFrom(type)) continue;
-            try
-            {
-                if (Activator.CreateInstance(type) is not IPlugin plugin) continue;
-                AddPlugin(plugin);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
+            if (!TryGetInstance(type, out var plugin)) continue;
+            AddPlugin(plugin);
         }
     } // internal static void Load (Assembly)
+    
+    /// <summary>
+    /// Tries to create an instance of the specified type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="plugin">The plugin instance.</param>
+    /// <returns><see langword="true"/> if the instance is created successfully; otherwise, <see langword="false"/>.</returns>
+    private static bool TryGetInstance(Type type, [NotNullWhen(true)] out IPlugin? plugin)
+    {
+        try
+        {
+            plugin = Activator.CreateInstance(type) as IPlugin;
+            return plugin != null;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            plugin = null;
+            return false;
+        }
+    } // private static bool TryGetInstance (Type, out IPlugin
 
     /// <summary>
     /// Adds the plugin.

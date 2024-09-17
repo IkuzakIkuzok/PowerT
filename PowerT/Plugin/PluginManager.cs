@@ -15,7 +15,7 @@ internal static class PluginManager
 {
     private static readonly string pluginsDirectory;
 
-    private static readonly List<IPlugin> plugins = [];
+    private static readonly Dictionary<Guid, PluginItem> plugins = [];
 
     static PluginManager()
     {
@@ -48,12 +48,12 @@ internal static class PluginManager
     /// <summary>
     /// Gets the plugins.
     /// </summary>
-    internal static IReadOnlyList<IPlugin> Plugins => plugins;
+    internal static IReadOnlyList<IPlugin> Plugins => plugins.Where(p => p.Value.Enabled).Select(p => p.Value.Instance).ToList();
 
     /// <summary>
     /// Gets the smoothers.
     /// </summary>
-    internal static IReadOnlyList<ISmoother> Smoothers => plugins.OfType<ISmoother>().ToList();
+    internal static IReadOnlyList<ISmoother> Smoothers => Plugins.OfType<ISmoother>().ToList();
 
     /// <summary>
     /// Loads the plugin from the specified assembly path.
@@ -79,6 +79,9 @@ internal static class PluginManager
         var types = assembly.GetTypes();
         foreach (var type in types)
         {
+            var guid = type.GUID;
+            if (plugins.ContainsKey(guid)) continue;
+
             if (type.IsInterface || type.IsAbstract) continue;
 
             /*
@@ -88,7 +91,7 @@ internal static class PluginManager
              */
             if (!typeof(IPlugin).IsAssignableFrom(type)) continue;
             if (!TryGetInstance(type, out var plugin)) continue;
-            AddPlugin(plugin);
+            AddPlugin(plugin, guid);
         }
     } // internal static void Load (Assembly)
     
@@ -111,25 +114,25 @@ internal static class PluginManager
             plugin = null;
             return false;
         }
-    } // private static bool TryGetInstance (Type, out IPlugin
+    } // private static bool TryGetInstance (Type, out IPlugin)
 
     /// <summary>
     /// Adds the plugin.
     /// </summary>
     /// <param name="plugin"></param>
-    internal static void AddPlugin(IPlugin plugin)
+    private static void AddPlugin(IPlugin plugin, Guid guid)
     {
         plugin.Initialize();
-        plugins.Add(plugin);
-    } // internal static void AddPlugin (IPlugin)
+        plugins.Add(guid, new(plugin));
+    } // private static void AddPlugin (IPlugin)
 
     /// <summary>
     /// Unloads all plugins.
     /// </summary>
     internal static void UnloadAll()
     {
-        foreach (var plugin in plugins)
-            plugin.Dispose();
+        foreach (var plugin in plugins.Values)
+            plugin.Instance.Dispose();
         plugins.Clear();
     } // internal static void UnloadAll ()
 } // internal static class PluginManager

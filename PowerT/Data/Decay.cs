@@ -107,7 +107,7 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
     {
         for (var i = 0; i < this.times.Length; i++)
             yield return (Time: this.times[i], Signal: this.signals[i]);
-    } // public IEnumerator<(double Time, double Signal)> GetEnumerator()
+    } // public IEnumerator<(double Time, double Signal)> GetEnumerator ()
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -159,7 +159,7 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         var at = Math.Max(Math.Round(this.signals.Max() / 100) * 100 - a0, 0);
         var tauT = 0.3;
         return new(a0, a, alpha, at, tauT);
-    } // internal Parameters EstimateParams()
+    } // internal Parameters EstimateParams ()
 
     /// <summary>
     /// Returns the linear regression of the specified values.

@@ -12,7 +12,7 @@ internal class MovingAverageSmoother : ISmoother
     internal static void Register()
     {
         PluginManager.AddPlugin(new MovingAverageSmoother());
-    } // internal static void Register()
+    } // internal static void Register ()
 
     private int width = 30;
 
@@ -43,7 +43,7 @@ internal class MovingAverageSmoother : ISmoother
             result[i] = sum / count;
         }
         return result;
-    } // public IEnumerable<double> Smooth(IEnumerable<double>)
+    } // public IEnumerable<double> Smooth (IEnumerable<double>)
 
     public bool SetOption(string option)
     {
@@ -53,7 +53,7 @@ internal class MovingAverageSmoother : ISmoother
             return true;
         }
         return false;
-    } // public bool SetOption(string)
+    } // public bool SetOption (string)
 
     public string GetOption() => this.width.ToString();
 } // internal class MovingAverageSmoother : ISmoother

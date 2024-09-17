@@ -7,6 +7,6 @@ namespace PowerT.Controls.Concatenator;
 
 internal record SmootherItem(ISmoother? Smoother)
 {
-    public override string ToString()
+    override public string ToString()
         => this.Smoother?.Name ?? "None";
 } // internal record SmootherItem (ISmoother?)

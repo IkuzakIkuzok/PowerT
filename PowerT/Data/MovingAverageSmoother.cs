@@ -2,12 +2,14 @@
 // (c) 2024 Kazuki Kohzuki
 
 using PowerT.Plugin;
+using System.Runtime.InteropServices;
 
 namespace PowerT.Data;
 
 /// <summary>
 /// Represents a smoother using the moving average method.
 /// </summary>
+[Guid("D2DCF761-0483-449E-B147-09E54FE1289A")]
 internal class MovingAverageSmoother : ISmoother
 {
     private int width = 30;

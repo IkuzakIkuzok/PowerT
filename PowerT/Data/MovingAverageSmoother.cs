@@ -5,20 +5,29 @@ using PowerT.Plugin;
 
 namespace PowerT.Data;
 
+/// <summary>
+/// Represents a smoother using the moving average method.
+/// </summary>
 internal class MovingAverageSmoother : ISmoother
 {
     private int width = 30;
 
+    /// <inheritdoc/>
     public string Name => "Moving Average";
 
+    /// <inheritdoc/>
     public string Description => "Smoothes the data using the moving average method.";
 
+    /// <inheritdoc/>
     public bool HasOption => true;
 
+    /// <inheritdoc/>
     public void Initialize() { }
 
+    /// <inheritdoc/>
     public void Dispose() { }
 
+    /// <inheritdoc/>
     public IEnumerable<double> Smooth(IEnumerable<double> data)
     {
         var source = data.ToArray();
@@ -38,6 +47,7 @@ internal class MovingAverageSmoother : ISmoother
         return result;
     } // public IEnumerable<double> Smooth (IEnumerable<double>)
 
+    /// <inheritdoc/>
     public bool SetOption(string option)
     {
         if (int.TryParse(option, out var width) && width > 0)
@@ -48,5 +58,6 @@ internal class MovingAverageSmoother : ISmoother
         return false;
     } // public bool SetOption (string)
 
+    /// <inheritdoc/>
     public string GetOption() => this.width.ToString();
 } // internal class MovingAverageSmoother : ISmoother

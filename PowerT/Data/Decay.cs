@@ -181,7 +181,13 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
         return (slope, intercept);
     } // private static (double, double) LinearRegression (IEnumerable<double>, IEnumerable<double>)
 
-    internal Decay Smoothing(ISmoother smoother)
+    /// <summary>
+    /// Smoothes the data.
+    /// </summary>
+    /// <param name="smoother">The smoother.</param>
+    /// <returns>The smoothed data.</returns>
+    /// <remarks>The current data is not modified.</remarks>
+    internal Decay Smoothing(ISmoother? smoother)
         => new(this.times, smoother?.Smooth(this.signals).ToArray() ?? this.signals);
 
     #region operators

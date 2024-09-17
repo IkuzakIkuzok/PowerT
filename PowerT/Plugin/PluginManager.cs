@@ -7,6 +7,9 @@ using System.Runtime.Loader;
 
 namespace PowerT.Plugin;
 
+/// <summary>
+/// Manages the plugins.
+/// </summary>
 internal static class PluginManager
 {
     private static readonly string pluginsDirectory;
@@ -76,6 +79,13 @@ internal static class PluginManager
         foreach (var type in types)
         {
             if (type.IsInterface || type.IsAbstract) continue;
+
+            /*
+             * Check if the type implements the IPlugin interface.
+             * This can be omitted because the type without the IPlugin interface will be rejected
+             * by `Activator.CreateInstance(type) is not IPlugin plugin`.
+             * However, `Activator.CreateInstance` is a heavy operation, so it is better to check it here.
+             */
             if (!typeof(IPlugin).IsAssignableFrom(type)) continue;
             try
             {

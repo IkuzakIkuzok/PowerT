@@ -48,4 +48,8 @@
     <AdditionalFiles Include="ExceptionAdjustments.txt" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PowerT.Plugin\PowerT.Plugin.csproj" />
+  </ItemGroup>
+
 </Project>

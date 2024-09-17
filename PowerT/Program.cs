@@ -13,6 +13,10 @@ internal static class Program
 {
     internal const string GITHUB_REPOSITORY = "https://github.com/IkuzakIkuzok/PowerT";
 
+    // ExceptionAdjustment: M:System.IO.Path.GetDirectoryName(System.String) -T:System.IO.PathTooLongException
+    // ExceptionAdjustment: P:System.Reflection.Assembly.Location -T:System.NotSupportedException
+    internal static readonly string AppLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
+
     /// <summary>
     /// Occurs when the color gradient is changed.
     /// </summary>

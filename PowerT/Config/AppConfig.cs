@@ -22,7 +22,7 @@ public sealed class AppConfig
     {
         try
         {
-            FullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, FILENAME);
+            FullPath = Path.Combine(Program.AppLocation, FILENAME);
         }
         catch
         {

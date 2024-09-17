@@ -9,7 +9,37 @@ namespace PowerT.Plugin;
 
 internal static class PluginManager
 {
+    private static readonly string pluginsDirectory;
+
     private static readonly List<IPlugin> plugins = [];
+
+    static PluginManager()
+    {
+        pluginsDirectory = Path.Combine(Program.AppLocation, "plugins");
+
+        try
+        {
+            // load built-in plugins
+            Load(Assembly.GetExecutingAssembly());
+
+            if (!Directory.Exists(pluginsDirectory)) return;
+            foreach (var file in Directory.EnumerateFiles(pluginsDirectory, "*.dll"))
+            {
+                try
+                {
+                    Load(file);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e);
+                }
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+    } // cctor ()
 
     /// <summary>
     /// Gets the plugins.

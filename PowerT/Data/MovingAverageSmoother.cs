@@ -2,18 +2,11 @@
 // (c) 2024 Kazuki Kohzuki
 
 using PowerT.Plugin;
-using System.Runtime.CompilerServices;
 
 namespace PowerT.Data;
 
 internal class MovingAverageSmoother : ISmoother
 {
-    [ModuleInitializer]
-    internal static void Register()
-    {
-        PluginManager.AddPlugin(new MovingAverageSmoother());
-    } // internal static void Register ()
-
     private int width = 30;
 
     public string Name => "Moving Average";

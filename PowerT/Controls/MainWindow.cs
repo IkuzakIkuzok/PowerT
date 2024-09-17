@@ -5,6 +5,7 @@ using PowerT.Controls.Charting;
 using PowerT.Controls.Concatenator;
 using PowerT.Controls.Text;
 using PowerT.Data;
+using PowerT.Plugin;
 using PowerT.Properties;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -462,6 +463,23 @@ internal sealed partial class MainWindow : Form
 
         #endregion menu.tools
 
+        #region menu.plugin
+
+        var m_plugin = new ToolStripMenuItem()
+        {
+            Text = "&Plugin",
+        };
+        ms.Items.Add(m_plugin);
+
+        var m_plugin_load = new ToolStripMenuItem()
+        {
+            Text = "&Load",
+        };
+        m_plugin_load.Click += LoadPlugin;
+        m_plugin.DropDownItems.Add(m_plugin_load);
+
+        #endregion menu.plugin
+
         #region menu.help
 
         var m_help = new ToolStripMenuItem()
@@ -829,4 +847,30 @@ internal sealed partial class MainWindow : Form
         Program.AMinusBSignalFormat = fnfd.AMinusBFormat;
         Program.BSignalFormat = fnfd.BFormat;
     } // private static void EditFilenameFormat (object?, EventArgs)
+
+    private void LoadPlugin(object? sender, EventArgs e)
+        => LoadPlugin();
+
+    private static void LoadPlugin()
+    {
+        using var ofd = new OpenFileDialog()
+        {
+            Title = "Select plugin",
+            Filter = "DLL files|*.dll|All files|*.*",
+        };
+        if (ofd.ShowDialog() != DialogResult.OK) return;
+        try
+        {
+            PluginManager.Load(ofd.FileName);
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show(
+                e.Message,
+                "Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error
+            );
+        }
+    } // private static void LoadPlugin ()
 } // internal sealed partial class MainWindow : Form

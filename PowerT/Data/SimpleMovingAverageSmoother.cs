@@ -22,11 +22,12 @@ internal sealed class SimpleMovingAverageSmoother : MovingAverageSmootherBase
     {
         var source = data.ToArray();
         var result = new double[source.Length];
+        var halfWidth = this.width >> 1;
         for (var i = 0; i < source.Length; i++)
         {
             var sum = 0.0;
             var count = 0;
-            for (var j = i - this.width / 2; j <= i + this.width / 2; j++)
+            for (var j = i - halfWidth; j <= i + halfWidth; j++)
             {
                 if (j < 0 || j >= source.Length) continue;
                 sum += source[j];

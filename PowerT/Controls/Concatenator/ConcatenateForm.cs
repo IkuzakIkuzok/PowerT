@@ -474,9 +474,9 @@ internal sealed class ConcatenateForm : Form
     private void SaveToFile(object? sender, EventArgs e)
         => SaveToFile();
 
-    private void SaveToFile()
+    private bool SaveToFile()
     {
-        if (this._decaysTable.Rows.Count == 0) return;
+        if (this._decaysTable.Rows.Count == 0) return true;
 
         if (!this._decaysTable.IsOrdered)
         {
@@ -487,7 +487,7 @@ internal sealed class ConcatenateForm : Form
                 MessageBoxIcon.Warning
             );
 
-            if (dr == DialogResult.Cancel) return;
+            if (dr == DialogResult.Cancel) return false;
             if (dr == DialogResult.Yes)
             {
                 // Sort by time end (index=2)
@@ -500,7 +500,7 @@ internal sealed class ConcatenateForm : Form
             Filter = "CSV files|*.csv|All files (*.*)|*.*",
             Title = "Save decays to file",
         };
-        if (sfd.ShowDialog() != DialogResult.OK) return;
+        if (sfd.ShowDialog() != DialogResult.OK) return false;
 
         var filename = sfd.FileName;
         try
@@ -519,8 +519,11 @@ internal sealed class ConcatenateForm : Form
         catch (Exception e)
         {
             MessageBox.Show($"An error occurred: {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
         }
-    } // private void SaveToFile ()
+
+        return true;
+    } // private bool SaveToFile ()
 
     private void ClearData(object? sender, EventArgs e)
     {
@@ -539,4 +542,28 @@ internal sealed class ConcatenateForm : Form
         this._decaysTable.Rows.Clear();
         this.btn_save.Enabled = false;
     } // private void ClearData (object?, EventArgs)
+
+    override protected void OnFormClosing(FormClosingEventArgs e)
+    {
+        base.OnFormClosing(e);
+
+        if (this._decaysTable.RowCount == 0) return;
+
+        var dr = MessageBox.Show(
+            "Do you want to save the decays before closing?",
+            "Warning",
+            MessageBoxButtons.YesNoCancel,
+            MessageBoxIcon.Warning
+        );
+
+        if (dr == DialogResult.No) return;
+
+        // SaveToFile is called iff the dialog result is Yes.
+        // The method returns false if the saving is canceled of failed.
+        if (dr == DialogResult.Cancel || !SaveToFile())
+        {
+            e.Cancel = true;
+            return;
+        }
+    } // override protected void OnFormClosing (FormClosingEventArgs)
 } // internal sealed class ConcatenateForm : Form

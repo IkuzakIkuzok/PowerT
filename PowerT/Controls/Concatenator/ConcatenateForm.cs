@@ -27,6 +27,8 @@ internal sealed class ConcatenateForm : Form
     private readonly SmootherSelector smootherSelector;
     private readonly TextBox smootherOption;
 
+    private bool saved = false;
+
     internal ConcatenateForm()
     {
         this.Text = "Concatenate decays";
@@ -348,6 +350,7 @@ internal sealed class ConcatenateForm : Form
         SetColor();
         this._chart.Series.Add(row.Series);
         this.btn_save.Enabled = true;
+        this.saved = false;
     } // private void AddDecay ([string])
 
     private void SetColor(object? sender, EventArgs e)
@@ -451,6 +454,7 @@ internal sealed class ConcatenateForm : Form
         this._decaysTable.Smoother = smoother;
         this.smootherOption.Enabled = smoother?.HasOption ?? false;
         this.smootherOption.Text = smoother?.GetOption() ?? string.Empty;
+        this.saved = false;
     } // private void ChangeSmoother (object?, EventArgs)
 
     private void UpdateSmootherOption(object? sender, EventArgs e)
@@ -463,6 +467,7 @@ internal sealed class ConcatenateForm : Form
         {
             this.smootherOption.BackColor = SystemColors.Window;
             this._decaysTable.UpdateSeries();
+            this.saved = false;
         }
         else
         {
@@ -529,6 +534,7 @@ internal sealed class ConcatenateForm : Form
             return false;
         }
 
+        this.saved = true;
         return true;
     } // private bool SaveToFile ()
 
@@ -536,13 +542,16 @@ internal sealed class ConcatenateForm : Form
     {
         if (this._decaysTable.RowCount == 0) return;
 
-        var dr = MessageBox.Show(
-            "Do you want to clear all decays?",
-            "Warning",
-            MessageBoxButtons.OKCancel,
-            MessageBoxIcon.Warning
-        );
-        if (dr != DialogResult.OK) return;
+        if (!this.saved)
+        {
+            var dr = MessageBox.Show(
+                "Do you want to clear all decays?",
+                "Warning",
+                MessageBoxButtons.OKCancel,
+                MessageBoxIcon.Warning
+            );
+            if (dr != DialogResult.OK) return;
+        }
 
         foreach (var row in this._decaysTable.DecayDataRows)
             this._chart.Series.Remove(row.Series);
@@ -555,6 +564,7 @@ internal sealed class ConcatenateForm : Form
         base.OnFormClosing(e);
 
         if (this._decaysTable.RowCount == 0) return;
+        if (this.saved) return;
 
         var dr = MessageBox.Show(
             "Do you want to save the decays before closing?",

@@ -3,7 +3,6 @@
 
 namespace PowerT.Controls;
 
-using System.Diagnostics;
 using Timer = System.Windows.Forms.Timer;
 
 /// <summary>
@@ -40,7 +39,6 @@ internal class FadingMessageBox : Form
     /// <param name="parent">The parent form.</param>
     private FadingMessageBox(Form parent)
     {
-        this.Size = this.MinimumSize = this.MaximumSize = new Size(500, 150);
         this.TopMost = true;
         this.ShowInTaskbar = false;
         this.FormBorderStyle = FormBorderStyle.None;
@@ -70,14 +68,15 @@ internal class FadingMessageBox : Form
     /// <param name="fadeInterval">Fading interval.</param>
     /// <param name="fadeRate">The fading rate for each <paramref name="fadeInterval"/>.</param>
     /// <param name="parentControl">The parent form of the message box.</param>
+    /// <param name="width">The width of the message box.</param>
     internal static void Show(
         string text,
         double initialOpacity = 0.8,
         int initInterval = 2000,
         int fadeInterval = 75,
         double fadeRate = 0.05,
-        Form? parentControl = null
-
+        Form? parentControl = null,
+        int width = 500
     )
     {
         var form = new FadingMessageBox(parentControl ?? Program.MainWindow)
@@ -85,6 +84,9 @@ internal class FadingMessageBox : Form
             Opacity = initialOpacity,
         };
         form.label.Text = text;
+        var height = CalcHeight(text, width, form.label.Font);
+        form.Size = form.MinimumSize = form.MaximumSize = new Size(width, height + 20);
+
         form.initialInterval = initInterval;
         form.fadingInterval = fadeInterval;
         form.fadeRate = fadeRate;
@@ -93,6 +95,9 @@ internal class FadingMessageBox : Form
 
         form.Show();
     } // internal static void Show (string, [double], [int], [int], [double], [Form])
+
+    private static int CalcHeight(string text, int width, Font font)
+        => TextRenderer.MeasureText(text, font, new Size(width, int.MaxValue), TextFormatFlags.WordBreak).Height;
 
     protected override void OnClosed(EventArgs e)
     {

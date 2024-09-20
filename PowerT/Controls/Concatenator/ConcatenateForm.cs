@@ -476,7 +476,14 @@ internal sealed class ConcatenateForm : Form
 
     private bool SaveToFile()
     {
-        if (this._decaysTable.Rows.Count == 0) return true;
+        if (this._decaysTable.Rows.Count == 0)
+        {
+            FadingMessageBox.Show(
+                "There is no decay to save.",
+                0.8, 1000, 75, 0.1, this
+            );
+            return true;
+        }
 
         if (!this._decaysTable.IsOrdered)
         {

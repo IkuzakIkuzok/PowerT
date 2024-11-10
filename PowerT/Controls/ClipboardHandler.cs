@@ -36,25 +36,34 @@ internal static class ClipboardHandler
 
         var data = new DataObject();
 
-        var text = CreateCsvContent(rows);
-        if (toText)
+        MemoryStream? csv = null, html = null;
+        try
         {
-            data.SetData(DataFormats.Text, text);
-        }
+            var text = CreateCsvContent(rows);
+            if (toText)
+            {
+                data.SetData(DataFormats.Text, text);
+            }
 
-        if (toCsv)
-        {
-            using var csv = new MemoryStream(text.ToBytes());
-            data.SetData(DataFormats.CommaSeparatedValue, csv);
-        }
+            if (toCsv)
+            {
+                csv = new MemoryStream(text.ToBytes());
+                data.SetData(DataFormats.CommaSeparatedValue, csv);
+            }
 
-        if (toHtml)
-        {
-            using var html = new MemoryStream(CreateHtmlContent(rows).ToBytes());
-            data.SetData(DataFormats.Html, html);
+            if (toHtml)
+            {
+                html = new MemoryStream(CreateHtmlContent(rows).ToBytes());
+                data.SetData(DataFormats.Html, html);
+            }
+
+            Clipboard.SetDataObject(data, true);
         }
-        
-        Clipboard.SetDataObject(data, true);
+        finally
+        {
+            csv?.Dispose();
+            html?.Dispose();
+        }
     } // internal static void CopyToClipboard (IEnumerable<ParamsRow>)
 
     /// <summary>

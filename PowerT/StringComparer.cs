@@ -12,6 +12,13 @@ internal sealed partial class StringComparer : IComparer<string>
 {
     private static readonly Regex re_textNum = NamePartsPattern();
 
+    private static readonly StringComparer _instance = new();
+
+    /// <summary>
+    /// Gets the instance of the <see cref="StringComparer"/> class.
+    /// </summary>
+    internal static StringComparer Instance => _instance;
+
     /// <inheritdoc/>
     // Only use supported StringComparison values.
     // ExceptionAdjustment: M:System.String.Compare(System.String,System.String,System.StringComparison) -T:System.NotSupportedException
@@ -38,6 +45,8 @@ internal sealed partial class StringComparer : IComparer<string>
 
         return 0;
     } // public int Compare (s1, s2)
+
+    private StringComparer() { }
 
     [GeneratedRegex(@"(\D+|\d+(\.\d+)?)", RegexOptions.Compiled)]
     private static partial Regex NamePartsPattern();

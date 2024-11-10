@@ -137,7 +137,7 @@ internal sealed class ConcatenateForm : Form
         {
             if (!(e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false)) return;
             if (e.Data.GetData(DataFormats.FileDrop) is not string[] folders) return;
-            Array.Sort(folders, new StringComparer());
+            Array.Sort(folders, StringComparer.Instance);
             foreach (var folder in folders)
                 AddDecay(folder);
         };

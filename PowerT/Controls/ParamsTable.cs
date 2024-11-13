@@ -105,7 +105,7 @@ internal sealed class ParamsTable : DataGridView
         CellPainting += PaintHandlerBuilder.CreateCellHandler(
             -1, 2,
             new("A", 0, 3, 4),
-            new("0", 6, -1, 10)
+            new("0", 6.2f, -2, 10)
         );
 
         var col_a = new DataGridViewNumericBoxColumn(1)

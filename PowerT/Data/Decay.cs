@@ -2,6 +2,7 @@
 // (c) 2024 Kazuki Kohzuki
 
 using PowerT.Plugin;
+using PowerT.Data.Solvers;
 using System.Collections;
 
 namespace PowerT.Data;
@@ -21,12 +22,12 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
     /// <summary>
     /// Gets the times.
     /// </summary>
-    internal IEnumerable<double> Times => this.times;
+    internal IReadOnlyList<double> Times => this.times;
 
     /// <summary>
     /// Gets the signals.
     /// </summary>
-    internal IEnumerable<double> Signals => this.signals;
+    internal IReadOnlyList<double> Signals => this.signals;
 
     /// <summary>
     /// Gets the minimum time.
@@ -139,47 +140,21 @@ internal sealed class Decay : IEnumerable<(double Time, double Signal)>
     /// Estimates the parameters.
     /// </summary>
     /// <returns>The estimated parameters.</returns>
-    // The number of elements passed to LinearRegression cannot exceed Int32.MaxValue (`var lastHalf = this.times.Length >> 1`).
-    // ExceptionAdjustment: M:PowerT.Data.Decay.LinearRegression(System.Collections.Generic.IEnumerable{System.Double},System.Collections.Generic.IEnumerable{System.Double}) -T:System.OverflowException
     internal Parameters EstimateParams()
+        => EstimateParams(null);
+
+    internal Parameters EstimateParams(Parameters? parameters)
     {
-        // TODO: Implement more 'nice' estimation (´･_･`)
-
-        var lastHalf = this.times.Length >> 1;
-        var logX = this.times.Select(x => Math.Log(x)).TakeLast(lastHalf);
-        var logY = this.signals.Select(y => Math.Log(y)).TakeLast(lastHalf);
-
-        (var sp, var ip) = LinearRegression(logX, logY);
-
-        var eip = double.IsNaN(ip) ? this.signals[0] : Math.Exp(ip);
-        var a0 = Math.Round(eip / 100) * 100;
-        var a = 1.0; // How to estimate?
-        var alpha = -Math.Round(sp, 2);
-
-        var at = Math.Max(Math.Round(this.signals.Max() / 100) * 100 - a0, 0);
-        var tauT = 0.3;
-        return new(a0, a, alpha, at, tauT);
-    } // internal Parameters EstimateParams ()
-
-    /// <summary>
-    /// Returns the linear regression of the specified values.
-    /// </summary>
-    /// <param name="x">The x values.</param>
-    /// <param name="y">The y values.</param>
-    /// <returns>The slope and the intercept of the linear regression.</returns>
-    /// <exception cref="OverflowException"><paramref name="x"/> contains too many elements.</exception>
-    private static (double slope, double intercept) LinearRegression(IEnumerable<double> x, IEnumerable<double> y)
-    {
-        var n = x.Count();
-        var Sx = x.Sum();
-        var Sy = y.Sum();
-        var Sxx = x.Select(x => x * x).Sum();
-        var Sxy = x.Zip(y).Select(p => p.First * p.Second).Sum();
-        var denom = n * Sxx - Sx * Sx;
-        var slope = (n * Sxy - Sx * Sy) / denom;
-        var intercept = (Sxx * Sy - Sx * Sxy) / denom;
-        return (slope, intercept);
-    } // private static (double, double) LinearRegression (IEnumerable<double>, IEnumerable<double>)
+        var initParams = parameters is null ? PowerExp.InitialValues : [parameters.A0, parameters.A, parameters.Alpha, parameters.AT, parameters.TauT];
+        var lma = new LevenbergMarquardt(new PowerExp(), this.times, this.signals, initParams);
+        lma.Fit();
+        var A0 = lma.Parameters[0];
+        var A = lma.Parameters[1];
+        var Alpha = lma.Parameters[2];
+        var AT = lma.Parameters[3];
+        var TauT = lma.Parameters[4];
+        return new(A0, A, Alpha, AT, TauT);
+    } // internal Parameters EstimateParams (Parameters?)
 
     /// <summary>
     /// Smoothes the data.

@@ -398,7 +398,7 @@ internal sealed partial class MainWindow : Form
         m_reestimate.Click += (sender, e) =>
         {
             foreach (var row in this._paramsTable.ParamsRows)
-                row.Parameters = row.Decay.EstimateParams();
+                row.Parameters = row.Decay.EstimateParams(row.Parameters);
         };
         m_data.DropDownItems.Add(m_reestimate);
 
